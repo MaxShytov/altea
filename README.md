@@ -47,15 +47,52 @@ project/
 
 ## 🚀 Quick Start
 
-### 1. Clone the template
+### Быстрый запуск (одна команда)
+
+Убедитесь, что Docker Desktop запущен, затем выполните:
+
+```bash
+./start.sh
+
+# Или если не работает:
+bash start.sh
+```
+
+Скрипт автоматически:
+- Создаст `.env` файл из примера
+- Запустит Docker контейнеры (PostgreSQL, Redis)
+- Создаст виртуальное окружение Python
+- Установит все зависимости
+- Применит миграции базы данных
+- Запустит сервер разработки
+
+После запуска:
+- **Приложение:** http://127.0.0.1:8000
+- **Админка:** http://127.0.0.1:8000/admin
+
+**Суперадмин для локальной разработки:**
+- Email: `admin@altea.com`
+- Пароль: `password123`
+
+Для создания нового суперпользователя (в новом терминале):
+```bash
+source venv/bin/activate
+python manage.py createsuperuser
+```
+
+---
+
+### Ручной запуск (пошагово)
+
+#### 1. Clone the template
 ```bash
 git clone https://github.com/yourusername/django-healthcare-starter.git my-new-project
 cd my-new-project
 rm -rf .git
 git init
-````
+```
 
-### 2. Rename the project
+#### 2. Rename the project
 
 Run the setup script:
 ```bash
@@ -67,7 +104,7 @@ Or manually:
 2. Update `BASE_DIR` references if needed
 3. Change project name in README
 
-### 3. Setup environment
+#### 3. Setup environment
 ```bash
 # Copy environment file
 cp .env.example .env
@@ -76,21 +113,21 @@ cp .env.example .env
 nano .env
 ```
 
-### 4. Start Docker services
+#### 4. Start Docker services
 
 ```bash
 docker compose up -d
 ```
 
-### 5. Setup Django
+#### 5. Setup Django
 
 ```bash
 # Create virtual environment
-python -m venv venv
+python3 -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # Install dependencies
-pip install -r requirements/development.txt
+pip install -r requirements.txt
 
 # Run migrations
 python manage.py migrate
@@ -102,11 +139,11 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
-### 6. Access the application
+#### 6. Access the application
 
 - **App:** [http://localhost:8000](http://localhost:8000)
 - **Admin:** [http://localhost:8000/admin](http://localhost:8000/admin)
-- **pgAdmin:** [http://localhost:15433](http://localhost:15433) ([admin@medshift.local](mailto:admin@medshift.local) / admin)
+- **pgAdmin:** [http://localhost:15433](http://localhost:15433) (admin@medshift.local / admin)
 
 ## 📝 Customization Guide
 
