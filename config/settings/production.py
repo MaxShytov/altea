@@ -1,5 +1,5 @@
 """
-Production settings for MedShift Scheduler.
+Production settings for Altea.
 """
 
 from .base import *

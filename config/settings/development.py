@@ -1,5 +1,5 @@
 """
-Development settings for MedShift Scheduler.
+Development settings for Altea.
 """
 
 from .base import *

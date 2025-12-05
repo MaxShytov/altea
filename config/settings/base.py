@@ -1,5 +1,5 @@
 """
-Django settings for MedShift Scheduler project.
+Django settings for Altea project.
 Base settings - common to all environments.
 """
 
@@ -82,7 +82,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': env('DB_ENGINE', default='django.db.backends.postgresql'),
-        'NAME': env('DB_NAME', default='medshift_dev'),
+        'NAME': env('DB_NAME', default='altea_dev'),
         'USER': env('DB_USER', default='dev_user'),
         'PASSWORD': env('DB_PASSWORD', default='dev_password'),
         'HOST': env('DB_HOST', default='localhost'),

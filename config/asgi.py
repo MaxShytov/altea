@@ -1,5 +1,5 @@
 """
-ASGI config for MedShift Scheduler project.
+ASGI config for Altea project.
 """
 
 import os

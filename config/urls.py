@@ -1,5 +1,5 @@
 """
-URL configuration for MedShift Scheduler project.
+URL configuration for Altea project.
 """
 
 from django.contrib import admin
@@ -29,6 +29,6 @@ if settings.DEBUG:
         ] + urlpatterns
 
 # Customize admin site
-admin.site.site_header = "MedShift Scheduler Administration"
-admin.site.site_title = "MedShift Admin"
-admin.site.index_title = "Welcome to MedShift Scheduler"
+admin.site.site_header = "Altea Administration"
+admin.site.site_title = "Altea Admin"
+admin.site.index_title = "Welcome to Altea"

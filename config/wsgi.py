@@ -1,5 +1,5 @@
 """
-WSGI config for MedShift Scheduler project.
+WSGI config for Altea project.
 """
 
 import os
