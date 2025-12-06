@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}{{ document.title }} - Altea{% endblock %}
+{% block title %}{{ document.title }} - {{ app_settings.app_name }}{% endblock %}
 
 {% block extra_css %}
 <style>

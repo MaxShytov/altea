@@ -1,5 +1,5 @@
 """
-Core API views - includes legal document endpoints.
+Core API views - includes legal document and app settings endpoints.
 """
 
 from django.utils import timezone
@@ -9,12 +9,37 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 
-from apps.core.models import LegalDocument
+from apps.core.models import AppSettings, LegalDocument
 from apps.core.api.serializers import (
+    AppSettingsSerializer,
     LegalDocumentSerializer,
     LegalDocumentListSerializer,
     AcceptLegalDocumentsSerializer,
 )
+
+
+class AppSettingsAPIView(APIView):
+    """
+    Get application branding and configuration settings.
+    Public endpoint - no authentication required.
+    Cached server-side for 1 hour.
+    """
+    permission_classes = [AllowAny]
+
+    @extend_schema(
+        summary='Get app settings',
+        description='Returns application branding configuration including logo, '
+                    'app name, colors, and contact information. '
+                    'This endpoint is public and cached server-side.',
+        responses={
+            200: AppSettingsSerializer,
+        },
+        tags=['Config'],
+    )
+    def get(self, request):
+        settings = AppSettings.get_settings()
+        serializer = AppSettingsSerializer(settings, context={'request': request})
+        return Response(serializer.data)
 
 
 class LegalDocumentListAPIView(APIView):

@@ -10,12 +10,15 @@
         <div class="col-md-6 d-none d-md-flex auth-branding">
             <div class="d-flex flex-column justify-content-center align-items-center w-100 text-white p-5">
                 <div class="mb-4">
-                    <span class="material-icons" style="font-size: 80px;">local_hospital</span>
+                    {% if app_settings.logo_url %}
+                        <img src="{{ app_settings.logo_url }}" alt="{{ app_settings.app_name }}" style="max-width: 120px; max-height: 120px; border-radius: 12px;">
+                    {% else %}
+                        <span class="d-inline-flex align-items-center justify-content-center" style="width: 100px; height: 100px; background: rgba(255,255,255,0.2); color: white; border-radius: 12px; font-weight: bold; font-size: 48px;">{{ app_settings.logo_initial }}</span>
+                    {% endif %}
                 </div>
-                <h1 class="display-4 fw-bold mb-3">Altea</h1>
+                <h1 class="display-4 fw-bold mb-3">{{ app_settings.app_name }}</h1>
                 <p class="lead text-center">
-                    Employee scheduling and workforce management<br>
-                    for healthcare facilities
+                    {{ app_settings.hero_text }}
                 </p>
             </div>
         </div>

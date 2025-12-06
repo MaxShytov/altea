@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>{% block email_title %}Altea{% endblock %}</title>
+    <title>{% block email_title %}{{ app_settings.app_name }}{% endblock %}</title>
     <!--[if mso]>
     <style type="text/css">
         body, table, td {font-family: Arial, Helvetica, sans-serif !important;}
@@ -22,10 +22,10 @@
                         <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center;">
                             {% block email_header %}
                             <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 600;">
-                                🏥 Altea
+                                {{ app_settings.app_name }}
                             </h1>
                             <p style="color: #ffffff; margin: 10px 0 0 0; opacity: 0.9; font-size: 14px;">
-                                Addiction Recovery & Wellness Tracking
+                                {{ app_settings.hero_text }}
                             </p>
                             {% endblock %}
                         </td>
@@ -45,16 +45,16 @@
                         <td style="background-color: #f9f9f9; padding: 30px; text-align: center; border-top: 1px solid #e0e0e0;">
                             {% block email_footer %}
                             <p style="margin: 0 0 10px 0; font-size: 14px; color: #666;">
-                                <strong>Altea</strong><br>
-                                Altea Wellness | Bern, Switzerland
+                                <strong>{{ app_settings.app_name }}</strong><br>
+                                {{ app_settings.hero_text }}
                             </p>
                             <p style="margin: 10px 0 0 0; font-size: 12px; color: #999;">
-                                © {% now "Y" %} Altea. All rights reserved.
+                                © {% now "Y" %} {{ app_settings.app_name }}. All rights reserved.
                             </p>
                             <p style="margin: 15px 0 0 0; font-size: 11px; color: #999;">
-                                You received this email because you have an account with Altea.<br>
-                                If you have any questions, please contact us at 
-                                <a href="mailto:support@altea.local" style="color: #667eea; text-decoration: none;">support@altea.local</a>
+                                You received this email because you have an account with {{ app_settings.app_name }}.<br>
+                                If you have any questions, please contact us at
+                                <a href="mailto:{{ app_settings.contact_email }}" style="color: #667eea; text-decoration: none;">{{ app_settings.contact_email }}</a>
                             </p>
                             {% endblock %}
                         </td>

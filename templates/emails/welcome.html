@@ -1,10 +1,10 @@
 {% extends "emails/base_email.html" %}
 
-{% block email_title %}Welcome to Altea{% endblock %}
+{% block email_title %}Welcome to {{ app_settings.app_name }}{% endblock %}
 
 {% block email_content %}
 <h2 style="color: #333; margin-top: 0; font-size: 24px; font-weight: 600;">
-    Welcome to Altea! 🎉
+    Welcome to {{ app_settings.app_name }}!
 </h2>
 
 <p style="color: #555; font-size: 16px; line-height: 1.6; margin: 20px 0;">

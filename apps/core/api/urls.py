@@ -5,6 +5,7 @@ Core API URL configuration.
 from django.urls import path
 
 from apps.core.api.views import (
+    AppSettingsAPIView,
     LegalDocumentListAPIView,
     TermsOfServiceAPIView,
     PrivacyPolicyAPIView,
@@ -15,6 +16,9 @@ from apps.core.api.views import (
 app_name = 'core-api'
 
 urlpatterns = [
+    # App configuration
+    path('config/app-settings/', AppSettingsAPIView.as_view(), name='app-settings'),
+
     # Legal documents
     path('legal/', LegalDocumentListAPIView.as_view(), name='legal-list'),
     path('legal/terms/', TermsOfServiceAPIView.as_view(), name='legal-terms'),

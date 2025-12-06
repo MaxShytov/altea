@@ -1,9 +1,9 @@
 {% extends "admin/base.html" %}
 
-{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | Altea Admin{% endblock %}
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ app_settings.app_name }} Admin{% endblock %}
 
 {% block branding %}
-<div id="site-name"><a href="{% url 'admin:index' %}">Altea Administration</a></div>
+<div id="site-name"><a href="{% url 'admin:index' %}">{{ app_settings.app_name }} Administration</a></div>
 {% endblock %}
 
 {% block extrastyle %}

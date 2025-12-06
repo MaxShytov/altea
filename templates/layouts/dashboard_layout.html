@@ -9,8 +9,12 @@
     <div class="bg-white border-end" id="sidebar-wrapper" style="width: 250px;">
         <div class="sidebar-heading border-bottom p-3">
             <div class="d-flex align-items-center">
-                <span class="material-icons text-primary me-2" style="font-size: 32px;">local_hospital</span>
-                <span class="fw-bold">Altea</span>
+                {% if app_settings.logo_small_url %}
+                    <img src="{{ app_settings.logo_small_url }}" alt="{{ app_settings.app_name }}" class="me-2" style="width: 32px; height: 32px; border-radius: 4px;">
+                {% else %}
+                    <span class="d-inline-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; background: {{ app_settings.primary_color }}; color: white; border-radius: 4px; font-weight: bold;">{{ app_settings.logo_initial }}</span>
+                {% endif %}
+                <span class="fw-bold">{{ app_settings.app_name }}</span>
             </div>
         </div>
         <div class="list-group list-group-flush">

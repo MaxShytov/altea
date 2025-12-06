@@ -64,6 +64,9 @@ dependencies:
   # Deep linking support
   app_links: ^6.3.3
 
+  # Local storage for caching (app settings)
+  shared_preferences: ^2.3.3
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

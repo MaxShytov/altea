@@ -1,26 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'l10n/app_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/router/app_router.dart';
+import 'data/data_sources/local/app_settings_local_data_source.dart';
+import 'l10n/app_localizations.dart';
+import 'presentation/providers/app_settings_provider.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize SharedPreferences
+  final sharedPreferences = await SharedPreferences.getInstance();
+
   runApp(
-    const ProviderScope(
-      child: AlteaApp(),
+    ProviderScope(
+      overrides: [
+        // Override the SharedPreferences provider with the actual instance
+        sharedPreferencesProvider.overrideWithValue(sharedPreferences),
+      ],
+      child: const AlteaApp(),
     ),
   );
 }
 
 /// Main application widget.
-class AlteaApp extends StatelessWidget {
+class AlteaApp extends ConsumerWidget {
   const AlteaApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final appName = ref.watch(appNameProvider);
+
     return MaterialApp.router(
-      title: 'Altea',
+      title: appName,
       debugShowCheckedModeBanner: false,
       // Localization
       localizationsDelegates: const [

@@ -1,10 +1,54 @@
 """
-Core API serializers - includes legal document serializers.
+Core API serializers - includes legal document and app settings serializers.
 """
 
 from rest_framework import serializers
 
-from apps.core.models import LegalDocument
+from apps.core.models import AppSettings, LegalDocument
+
+
+class AppSettingsSerializer(serializers.ModelSerializer):
+    """
+    Serializer for AppSettings model.
+    Returns public branding configuration for mobile clients.
+    """
+    logo_url = serializers.SerializerMethodField()
+    logo_small_url = serializers.SerializerMethodField()
+    logo_initial = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = AppSettings
+        fields = [
+            'app_name',
+            'hero_text',
+            'logo_url',
+            'logo_small_url',
+            'logo_initial',
+            'primary_color',
+            'secondary_color',
+            'contact_email',
+            'support_url',
+            'updated_at',
+        ]
+        read_only_fields = fields
+
+    def get_logo_url(self, obj):
+        """Return absolute URL for logo."""
+        request = self.context.get('request')
+        if obj.logo and request:
+            return request.build_absolute_uri(obj.logo.url)
+        elif obj.logo:
+            return obj.logo.url
+        return None
+
+    def get_logo_small_url(self, obj):
+        """Return absolute URL for small logo."""
+        request = self.context.get('request')
+        if obj.logo_small and request:
+            return request.build_absolute_uri(obj.logo_small.url)
+        elif obj.logo_small:
+            return obj.logo_small.url
+        return None
 
 
 class LegalDocumentSerializer(serializers.ModelSerializer):

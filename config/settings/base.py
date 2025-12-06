@@ -74,6 +74,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'apps.core.context_processors.app_settings',
             ],
         },
     },
@@ -92,6 +93,23 @@ DATABASES = {
         'PORT': env('DB_PORT', default='15432'),
     }
 }
+
+# Cache Configuration
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': env('REDIS_URL', default='redis://localhost:6379/0'),
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        },
+        'KEY_PREFIX': 'altea',
+        'TIMEOUT': 3600,  # 1 hour default
+    }
+}
+
+# App Settings cache configuration
+APP_SETTINGS_CACHE_KEY = 'app_settings'
+APP_SETTINGS_CACHE_TIMEOUT = 3600  # 1 hour
 
 # Internationalization
 LANGUAGE_CODE = 'en-us'
