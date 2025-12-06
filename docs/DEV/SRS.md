@@ -111,7 +111,7 @@
 
 ### 3.1 Управление пользователями
 
-#### FR-1.1: Регистрация пользователя
+####  ✅ FR-1.1: Регистрация пользователя
 
 **Приоритет:** CRITICAL  
 **Story Points:** 5
@@ -225,8 +225,16 @@ Response 200:
 
 #### FR-1.3: Профиль пользователя
 
-**Приоритет:** HIGH  
+**Приоритет:** HIGH
 **Story Points:** 5
+
+> **TODO (from FR-1.2):** После реализации `UserProfile`, обновить `LoginUserSerializer` в `apps/accounts/api/serializers.py` для чтения `profile_completed` из `UserProfile.onboarding_completed` и `language` из `UserProfile.language` (сейчас возвращаются заглушки).
+
+> **TODO (from FR-1.2 Flutter):** Настроить локализацию (l10n) во Flutter приложении. Сейчас строки захардкодены на английском в `LoginScreen` и `RegistrationScreen`. Необходимо:
+> - Добавить `flutter_localizations` в `pubspec.yaml`
+> - Создать ARB файлы: `lib/l10n/app_en.arb`, `app_de.arb`, `app_fr.arb`, `app_it.arb`
+> - Настроить `MaterialApp.localizationsDelegates` и `supportedLocales`
+> - Заменить hardcoded строки на `AppLocalizations.of(context)!.keyName`
 
 **Поля профиля:**
 ```python
@@ -3015,9 +3023,124 @@ CREATE TABLE notification_settings (
 
 ---
 
-**Document Version:** 1.0  
-**Last Updated:** December 5, 2025  
-**Status:** Ready for Implementation  
+## 13. Post-MVP Security Enhancements
+
+### 13.1 Login Attempt Logging & Account Lockout
+
+**Приоритет:** HIGH (Post-MVP)
+**Story Points:** 8
+
+**Описание:**
+Расширенная система логирования попыток входа и блокировки аккаунтов.
+
+**Требования:**
+
+1. **Логирование попыток входа:**
+   - ✅ БД: хранить 90 дней, показывать пользователю историю входов
+   - ✅ Файлы: хранить 2 года для compliance
+   - ✅ Sentry: мониторинг атак (Free Tier)
+
+2. **Блокировка аккаунта (MVP):**
+```python
+LOCKOUT_SETTINGS = {
+    'patient': {
+        'max_attempts': 5,
+        'lockout_duration': '30 minutes',
+        'unlock_via': ['time', 'email']
+    }
+}
+```
+
+3. **Database model:**
+```python
+class LoginAttempt(TimeStampedModel):
+    user = ForeignKey(User, null=True)  # null for non-existing emails
+    email = EmailField()
+    ip_address = GenericIPAddressField()
+    user_agent = TextField()
+    success = BooleanField()
+    failure_reason = CharField(null=True)  # invalid_password, unverified, locked
+    location = CharField(null=True)  # GeoIP
+    created_at = DateTimeField(auto_now_add=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['user', '-created_at']),
+            models.Index(fields=['ip_address', '-created_at']),
+        ]
+```
+
+---
+
+### 13.2 Phase 2: Production Security
+
+**Приоритет:** MEDIUM (Post-MVP)
+**Story Points:** 21
+
+**Расширенные функции безопасности:**
+
+- ✅ Разные политики блокировки для пациентов/терапевтов
+- ✅ Geolocation-based anomaly detection
+- ✅ 2FA для medical staff (TOTP/SMS)
+- ✅ Email уведомления о входе с новых устройств
+- ✅ Emergency access для критических ситуаций
+- ✅ Device fingerprinting
+- ✅ Session management (view/revoke active sessions)
+
+---
+
+### 13.3 Compliance Requirements
+
+#### HIPAA (США - если планируется выход):
+
+| Requirement | Status | Notes |
+|-------------|--------|-------|
+| Audit trail | 🔲 | Хранить 6+ лет |
+| Auto-logout | 🔲 | После неактивности |
+| Unique user IDs | ✅ | UUID implemented |
+| Emergency access | 🔲 | Break-glass mechanism |
+| Encryption at rest | ✅ | AES-256 |
+| Access controls | ✅ | Role-based |
+
+#### GDPR (Европа/Швейцария):
+
+| Requirement | Status | Notes |
+|-------------|--------|-------|
+| Right to be forgotten | 🔲 | Account deletion |
+| Data export | 🔲 | JSON/PDF export |
+| Consent management | ✅ | terms_accepted tracking |
+| Breach notification | 🔲 | 24-48 часов |
+| Data minimization | ✅ | Only necessary data |
+| Privacy by design | ✅ | Architecture level |
+
+#### Swiss Regulations:
+
+| Requirement | Status | Notes |
+|-------------|--------|-------|
+| FADP compliance | 🔲 | Federal Act on Data Protection |
+| Medical secrecy | 🔲 | Professional secrecy rules |
+| Cross-border restrictions | 🔲 | Data localization |
+| DSG (new law 2023) | 🔲 | Revised data protection |
+
+---
+
+### 13.4 Security Response Codes (Future)
+
+**Refined HTTP responses for authentication:**
+
+| Scenario | Current (MVP) | Future |
+|----------|---------------|--------|
+| Invalid credentials | 401 | 401 + attempt count |
+| Email not verified | 403 | 403 + user_id for resend |
+| Account locked | 403 | 423 Locked + unlock time |
+| Too many attempts (IP) | 429 | 429 + retry-after header |
+| Suspicious activity | N/A | 403 + verification required |
+
+---
+
+**Document Version:** 1.1
+**Last Updated:** December 6, 2025
+**Status:** Ready for Implementation
 **Next Review:** After MVP completion
 
 ---
