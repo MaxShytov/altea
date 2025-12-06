@@ -1,0 +1,7 @@
+{% extends "legal/base_legal.html" %}
+
+{% block content %}
+{% with other_document_url="/legal/terms/" other_document_name="Terms of Service" %}
+{{ block.super }}
+{% endwith %}
+{% endblock %}

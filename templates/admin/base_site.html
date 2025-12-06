@@ -1,0 +1,90 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | Altea Admin{% endblock %}
+
+{% block branding %}
+<div id="site-name"><a href="{% url 'admin:index' %}">Altea Administration</a></div>
+{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+/* Fix filter sidebar - move to the right side */
+#changelist {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+}
+
+#changelist #toolbar,
+#changelist .actions,
+#changelist #changelist-form {
+    flex: 1 1 100%;
+}
+
+#changelist #changelist-filter {
+    order: 1;
+    width: 240px;
+    flex-shrink: 0;
+    margin-left: 20px;
+    background: var(--darkened-bg);
+}
+
+#changelist #changelist-form {
+    order: 0;
+    flex: 1;
+    min-width: 0;
+}
+
+/* Remove default margin/padding that causes gap */
+#changelist-filter {
+    margin-top: 0;
+}
+
+#content-main #changelist {
+    padding-right: 0;
+}
+
+/* Collapse filter header styling */
+#changelist-filter summary {
+    background: var(--primary);
+    color: var(--header-link-color);
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+#changelist-filter details {
+    border: none;
+}
+
+#changelist-filter details[open] summary {
+    margin-bottom: 0;
+}
+
+#changelist-filter h3 {
+    padding: 10px 12px 5px;
+    margin: 0;
+    font-size: 13px;
+    color: var(--body-quiet-color);
+}
+
+#changelist-filter ul {
+    padding: 0 12px 10px;
+    margin: 0;
+}
+
+#changelist-filter li {
+    list-style: none;
+    padding: 4px 0;
+}
+
+#changelist-filter a {
+    color: var(--body-fg);
+}
+
+#changelist-filter a:hover,
+#changelist-filter li.selected a {
+    color: var(--primary);
+}
+</style>
+{% endblock %}

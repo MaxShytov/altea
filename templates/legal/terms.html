@@ -1,0 +1,7 @@
+{% extends "legal/base_legal.html" %}
+
+{% block content %}
+{% with other_document_url="/legal/privacy/" other_document_name="Privacy Policy" %}
+{{ block.super }}
+{% endwith %}
+{% endblock %}

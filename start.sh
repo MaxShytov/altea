@@ -8,6 +8,11 @@ set -e
 
 echo "🚀 Запуск проекта..."
 
+# Останавливаем старые контейнеры
+echo "🛑 Останавливаю старые контейнеры..."
+docker stop altea_db altea_redis 2>/dev/null || true
+docker rm altea_db altea_redis 2>/dev/null || true
+
 # Копируем .env если не существует
 if [ ! -f .env ]; then
     echo "📋 Создаю .env из .env.example..."
@@ -40,14 +45,16 @@ pip install -r requirements.txt --quiet
 echo "🗃️ Применяю миграции..."
 python manage.py migrate
 
+# Seed legal documents (Terms of Service, Privacy Policy)
+echo "📜 Загружаю юридические документы..."
+python manage.py seed_legal_documents
+
 echo ""
 echo "✅ Проект готов!"
 echo ""
 echo "🌐 Открой в браузере: http://127.0.0.1:8000"
 echo "👤 Админка: http://127.0.0.1:8000/admin"
-echo ""
-echo "💡 Для создания суперпользователя выполни:"
-echo "   source venv/bin/activate && python manage.py createsuperuser"
+echo "📚 API Docs: http://127.0.0.1:8000/api/docs/"
 echo ""
 echo "🛑 Для остановки нажми Ctrl+C"
 echo ""

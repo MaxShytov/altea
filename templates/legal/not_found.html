@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Document Not Found - Altea{% endblock %}
+
+{% block extra_css %}
+<style>
+    .error-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .error-icon {
+        font-size: 4rem;
+        color: #e0e0e0;
+        margin-bottom: 1.5rem;
+    }
+
+    .error-title {
+        font-size: 1.5rem;
+        font-weight: 500;
+        color: #1a1a1a;
+        margin-bottom: 0.75rem;
+    }
+
+    .error-message {
+        color: #666;
+        margin-bottom: 2rem;
+        max-width: 400px;
+    }
+
+    .back-link {
+        color: #1976d2;
+        text-decoration: none;
+    }
+
+    .back-link:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <div class="error-icon">
+        <span class="material-icons" style="font-size: inherit;">description</span>
+    </div>
+    <h1 class="error-title">Document Not Found</h1>
+    <p class="error-message">
+        The {{ document_type }} you're looking for is not available at this time.
+        Please try again later or contact support.
+    </p>
+    <a href="/" class="back-link">Go to Home</a>
+</div>
+{% endblock %}

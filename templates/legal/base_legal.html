@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ document.title }} - Altea{% endblock %}
+
+{% block extra_css %}
+<style>
+    .legal-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+
+    .legal-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .legal-header h1 {
+        font-size: 2rem;
+        font-weight: 500;
+        color: #1a1a1a;
+        margin-bottom: 0.5rem;
+    }
+
+    .legal-meta {
+        color: #666;
+        font-size: 0.875rem;
+    }
+
+    .legal-content {
+        line-height: 1.7;
+        color: #333;
+    }
+
+    .legal-content h2 {
+        font-size: 1.5rem;
+        font-weight: 500;
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        color: #1a1a1a;
+    }
+
+    .legal-content h3 {
+        font-size: 1.25rem;
+        font-weight: 500;
+        margin-top: 1.5rem;
+        margin-bottom: 0.75rem;
+        color: #1a1a1a;
+    }
+
+    .legal-content p {
+        margin-bottom: 1rem;
+    }
+
+    .legal-content ul, .legal-content ol {
+        margin-bottom: 1rem;
+        padding-left: 1.5rem;
+    }
+
+    .legal-content li {
+        margin-bottom: 0.5rem;
+    }
+
+    .legal-content a {
+        color: #1976d2;
+        text-decoration: none;
+    }
+
+    .legal-content a:hover {
+        text-decoration: underline;
+    }
+
+    .legal-footer {
+        margin-top: 3rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e0e0e0;
+        text-align: center;
+    }
+
+    .legal-footer a {
+        color: #666;
+        text-decoration: none;
+        margin: 0 1rem;
+    }
+
+    .legal-footer a:hover {
+        color: #1976d2;
+    }
+
+    .back-to-app {
+        display: inline-block;
+        margin-top: 1.5rem;
+        padding: 0.75rem 2rem;
+        background-color: #1976d2;
+        color: white;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .back-to-app:hover {
+        background-color: #1565c0;
+        color: white;
+    }
+
+    @media (max-width: 576px) {
+        .legal-container {
+            padding: 1rem;
+        }
+
+        .legal-header h1 {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="legal-container">
+    <div class="legal-header">
+        <h1>{{ document.title }}</h1>
+        <div class="legal-meta">
+            Version {{ document.version }} | Effective: {{ document.effective_date|date:"F d, Y" }}
+        </div>
+    </div>
+
+    <div class="legal-content">
+        {{ document.content|safe }}
+    </div>
+
+    <div class="legal-footer">
+        {% if other_document_url %}
+        <a href="{{ other_document_url }}">{{ other_document_name }}</a>
+        {% endif %}
+
+        {% if show_back_to_app %}
+        <br>
+        <a href="altea://home" class="back-to-app">Back to App</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,93 @@
+{% extends "layouts/auth_layout.html" %}
+
+{% block title %}Email Verification - Altea{% endblock %}
+
+{% block auth_content %}
+<div class="text-center">
+    {% if success %}
+        <!-- Success State -->
+        <div class="mb-4">
+            <span class="material-icons text-success" style="font-size: 64px;">check_circle</span>
+        </div>
+        <h2 class="fw-bold mb-3">Email Verified!</h2>
+        <p class="text-muted mb-4">
+            Your email address has been successfully verified. You can now log in to your account.
+        </p>
+
+        <!-- Open App Button (Deep Link) -->
+        <a href="altea://verified" class="btn btn-primary w-100 mb-3">
+            <span class="material-icons align-middle me-2" style="font-size: 18px;">open_in_new</span>
+            Open Altea App
+        </a>
+
+        <!-- Fallback: Web Login -->
+        <a href="{% url 'accounts:login' %}" class="btn btn-outline-secondary w-100">
+            Continue to Web Login
+        </a>
+
+    {% else %}
+        <!-- Error State -->
+        <div class="mb-4">
+            <span class="material-icons text-danger" style="font-size: 64px;">error</span>
+        </div>
+        <h2 class="fw-bold mb-3">Verification Failed</h2>
+        <p class="text-muted mb-4">
+            {{ message }}
+        </p>
+
+        {% if show_resend %}
+            <!-- Resend Form -->
+            <form method="post" action="{% url 'accounts_api:resend_verification' %}" id="resendForm">
+                {% csrf_token %}
+                <input type="hidden" name="email" value="{{ user.email }}">
+                <button type="button" class="btn btn-primary w-100 mb-3" onclick="resendVerification()">
+                    <span class="material-icons align-middle me-2" style="font-size: 18px;">refresh</span>
+                    Resend Verification Email
+                </button>
+            </form>
+            <div id="resendMessage" class="alert d-none mb-3"></div>
+        {% endif %}
+
+        <a href="{% url 'accounts:login' %}" class="btn btn-outline-secondary w-100">
+            Back to Login
+        </a>
+    {% endif %}
+</div>
+
+{% if show_resend %}
+<script>
+async function resendVerification() {
+    const form = document.getElementById('resendForm');
+    const messageDiv = document.getElementById('resendMessage');
+    const email = form.querySelector('input[name="email"]').value;
+    const csrfToken = form.querySelector('input[name="csrfmiddlewaretoken"]').value;
+
+    try {
+        const response = await fetch('{% url "accounts_api:resend_verification" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({ email: email })
+        });
+
+        const data = await response.json();
+
+        messageDiv.classList.remove('d-none', 'alert-success', 'alert-danger');
+        if (response.ok) {
+            messageDiv.classList.add('alert-success');
+            messageDiv.textContent = data.message;
+        } else {
+            messageDiv.classList.add('alert-danger');
+            messageDiv.textContent = data.message || 'An error occurred. Please try again.';
+        }
+    } catch (error) {
+        messageDiv.classList.remove('d-none', 'alert-success');
+        messageDiv.classList.add('alert-danger');
+        messageDiv.textContent = 'Network error. Please try again.';
+    }
+}
+</script>
+{% endif %}
+{% endblock %}
