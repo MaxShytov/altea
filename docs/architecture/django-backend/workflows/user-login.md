@@ -386,5 +386,7 @@ coverage report
 ## Related Documentation
 
 - [User Registration](./user-registration.md) - Account creation and email verification
+- [Current User Endpoint](./current-user.md) - Session restoration via /me
 - [User Login Feature](../../../features/user-login/README.md) - UI documentation
+- [Navigation & App Shell Feature](../../../features/navigation-app-shell/README.md) - Drawer and session management
 - SimpleJWT documentation for token refresh endpoints

@@ -108,12 +108,12 @@ Supports:
 | `too_many_requests` | "Too many login attempts. Please try again later." | Show snackbar |
 | `no_connection` | "No internet connection. Please check your network." | Show snackbar |
 
-### 2. Dashboard Screen (Placeholder)
+### 2. Dashboard Screen
 
 **Path:** `/dashboard`
-**File:** `mobile/lib/core/router/app_router.dart` (placeholder)
+**File:** `mobile/lib/presentation/screens/dashboard/dashboard_screen.dart`
 
-Placeholder screen showing "Dashboard - Coming Soon" with link back to login.
+Placeholder screen showing "Dashboard - Coming Soon" with navigation drawer. See [Navigation & App Shell Feature](../navigation-app-shell/README.md) for details.
 
 ## API Integration
 
@@ -384,16 +384,22 @@ flutter test
 
 | Path | Name | Screen | Auth Required |
 |------|------|--------|---------------|
+| `/home` | home | `HomeScreen` | No |
 | `/login` | login | `LoginScreen` | No |
 | `/register` | register | `RegistrationScreen` | No |
-| `/dashboard` | dashboard | `PlaceholderScreen` | Yes (future) |
+| `/dashboard` | dashboard | `DashboardScreen` | Yes (future) |
 
 ### GoRouter Configuration
 
 ```dart
 final appRouter = GoRouter(
-  initialLocation: '/login',
+  initialLocation: '/home',  // Home screen is initial (FR-NAV-1)
   routes: [
+    GoRoute(
+      path: '/home',
+      name: 'home',
+      builder: (context, state) => const HomeScreen(),
+    ),
     GoRoute(
       path: '/login',
       name: 'login',
@@ -402,7 +408,7 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/dashboard',
       name: 'dashboard',
-      builder: (context, state) => const _PlaceholderScreen(title: 'Dashboard'),
+      builder: (context, state) => const DashboardScreen(),
     ),
     // ...
   ],
@@ -411,15 +417,15 @@ final appRouter = GoRouter(
 
 ## Known Limitations
 
-1. **No "Remember Me"** - Session management not implemented
+1. **No "Remember Me"** - Session management via token only
 2. **No forgot password** - Shows "coming soon" message
 3. **No biometric login** - Fingerprint/Face ID not implemented
 4. **No social login** - Email/password only
-5. **Localization pending** - Strings hardcoded in English
-6. **No auth redirect guard** - Dashboard accessible without login (placeholder)
+5. **No auth redirect guard** - Dashboard accessible without login (relies on drawer state)
 
 ## Related Documentation
 
 - [Technical Documentation](../../architecture/django-backend/workflows/user-login.md)
+- [Navigation & App Shell Feature](../navigation-app-shell/README.md)
 - [User Registration Feature](../user-registration/README.md)
 - [Flutter App Architecture](../../architecture/flutter-apps/mobile-app.md)
