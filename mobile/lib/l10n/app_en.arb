@@ -1,0 +1,181 @@
+{
+  "@@locale": "en",
+
+  "signIn": "Sign In",
+  "@signIn": {"description": "Sign in button and title"},
+
+  "welcomeBack": "Welcome Back",
+  "@welcomeBack": {"description": "Login screen header"},
+
+  "signInSubtitle": "Sign in to continue your journey",
+  "@signInSubtitle": {"description": "Login screen subtitle"},
+
+  "email": "Email",
+  "@email": {"description": "Email field label"},
+
+  "emailHint": "Enter your email",
+  "@emailHint": {"description": "Email field hint"},
+
+  "emailRequired": "Email is required",
+  "@emailRequired": {"description": "Email validation error"},
+
+  "emailInvalid": "Please enter a valid email",
+  "@emailInvalid": {"description": "Email format validation error"},
+
+  "password": "Password",
+  "@password": {"description": "Password field label"},
+
+  "passwordHint": "Enter your password",
+  "@passwordHint": {"description": "Password field hint"},
+
+  "passwordRequired": "Password is required",
+  "@passwordRequired": {"description": "Password validation error"},
+
+  "forgotPassword": "Forgot password?",
+  "@forgotPassword": {"description": "Forgot password link"},
+
+  "forgotPasswordComingSoon": "Forgot password feature coming soon",
+  "@forgotPasswordComingSoon": {"description": "Forgot password coming soon message"},
+
+  "noAccount": "Don't have an account?",
+  "@noAccount": {"description": "No account text before register link"},
+
+  "register": "Register",
+  "@register": {"description": "Register link/button"},
+
+  "resend": "Resend",
+  "@resend": {"description": "Resend button"},
+
+  "resendVerificationHint": "Please register again to receive a new verification email.",
+  "@resendVerificationHint": {"description": "Hint for resending verification email"},
+
+  "createAccount": "Create Account",
+  "@createAccount": {"description": "Create account button and title"},
+
+  "joinAltea": "Join Altea",
+  "@joinAltea": {"description": "Registration screen header"},
+
+  "createAccountSubtitle": "Create your account to get started",
+  "@createAccountSubtitle": {"description": "Registration screen subtitle"},
+
+  "firstName": "First Name",
+  "@firstName": {"description": "First name field label"},
+
+  "firstNameHint": "First name",
+  "@firstNameHint": {"description": "First name field hint"},
+
+  "fieldRequired": "{field} is required",
+  "@fieldRequired": {
+    "description": "Generic required field error",
+    "placeholders": {
+      "field": {"type": "String"}
+    }
+  },
+
+  "fieldMinLength": "{field} must be at least {count} characters",
+  "@fieldMinLength": {
+    "description": "Minimum length validation error",
+    "placeholders": {
+      "field": {"type": "String"},
+      "count": {"type": "int"}
+    }
+  },
+
+  "lastName": "Last Name",
+  "@lastName": {"description": "Last name field label"},
+
+  "lastNameHint": "Last name",
+  "@lastNameHint": {"description": "Last name field hint"},
+
+  "passwordHintRegistration": "At least 8 characters",
+  "@passwordHintRegistration": {"description": "Password hint for registration"},
+
+  "passwordMinLength": "Password must be at least 8 characters",
+  "@passwordMinLength": {"description": "Password minimum length error"},
+
+  "confirmPassword": "Confirm Password",
+  "@confirmPassword": {"description": "Confirm password field label"},
+
+  "confirmPasswordHint": "Re-enter your password",
+  "@confirmPasswordHint": {"description": "Confirm password field hint"},
+
+  "confirmPasswordRequired": "Please confirm your password",
+  "@confirmPasswordRequired": {"description": "Confirm password required error"},
+
+  "passwordsDoNotMatch": "Passwords do not match",
+  "@passwordsDoNotMatch": {"description": "Passwords mismatch error"},
+
+  "termsAgreement": "I agree to the ",
+  "@termsAgreement": {"description": "Terms agreement prefix"},
+
+  "termsOfService": "Terms of Service",
+  "@termsOfService": {"description": "Terms of Service link text"},
+
+  "and": " and ",
+  "@and": {"description": "Conjunction between terms and privacy"},
+
+  "privacyPolicy": "Privacy Policy",
+  "@privacyPolicy": {"description": "Privacy Policy link text"},
+
+  "acceptTerms": "Please accept the Terms & Conditions",
+  "@acceptTerms": {"description": "Accept terms validation error"},
+
+  "alreadyHaveAccount": "Already have an account?",
+  "@alreadyHaveAccount": {"description": "Already have account text before sign in link"},
+
+  "checkEmail": "Check your email",
+  "@checkEmail": {"description": "Email sent screen header"},
+
+  "verificationSent": "We sent a verification link to",
+  "@verificationSent": {"description": "Verification email sent message"},
+
+  "clickLink": "Click the link in the email to verify your account and get started.",
+  "@clickLink": {"description": "Instruction to click verification link"},
+
+  "resendEmail": "Resend Email",
+  "@resendEmail": {"description": "Resend email button"},
+
+  "backToSignIn": "Back to Sign In",
+  "@backToSignIn": {"description": "Back to sign in button"},
+
+  "emailSentSuccess": "Verification email sent successfully",
+  "@emailSentSuccess": {"description": "Email sent success message"},
+
+  "emailSendFailed": "Failed to send email. Please try again.",
+  "@emailSendFailed": {"description": "Email send failure message"},
+
+  "checkSpam": "Didn't receive the email? Check your spam folder or try a different email address.",
+  "@checkSpam": {"description": "Check spam folder hint"},
+
+  "termsOfServiceTitle": "Terms of Service",
+  "@termsOfServiceTitle": {"description": "Terms of Service screen title"},
+
+  "privacyPolicyTitle": "Privacy Policy",
+  "@privacyPolicyTitle": {"description": "Privacy Policy screen title"},
+
+  "openingInBrowser": "Opening in browser...",
+  "@openingInBrowser": {"description": "Loading message when opening browser"},
+
+  "couldNotOpen": "Could not open {title}. Please try again.",
+  "@couldNotOpen": {
+    "description": "Error message when cannot open document",
+    "placeholders": {
+      "title": {"type": "String"}
+    }
+  },
+
+  "failedToOpen": "Failed to open {title}: {error}",
+  "@failedToOpen": {
+    "description": "Error message with details",
+    "placeholders": {
+      "title": {"type": "String"},
+      "error": {"type": "String"}
+    }
+  },
+
+  "anErrorOccurred": "An error occurred",
+  "@anErrorOccurred": {"description": "Generic error message"},
+
+  "retry": "Retry",
+  "@retry": {"description": "Retry button"}
+}
