@@ -3,15 +3,23 @@ API Views for authentication.
 """
 
 from django.shortcuts import render
-from drf_spectacular.utils import extend_schema, OpenApiResponse
+from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiExample
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
 
-from apps.accounts.services import EmailVerificationService
-from .serializers import RegisterSerializer, ResendVerificationSerializer, UserSerializer
-from .throttling import RegistrationThrottle, ResendVerificationThrottle
+from apps.accounts.services import AuthErrorCode, EmailVerificationService
+from .serializers import (
+    LoginSerializer,
+    LoginResponseSerializer,
+    LoginUserSerializer,
+    RegisterSerializer,
+    ResendVerificationSerializer,
+    UserSerializer,
+)
+from .throttling import LoginThrottle, RegistrationThrottle, ResendVerificationThrottle
 
 
 class RegisterAPIView(APIView):
@@ -146,3 +154,114 @@ class ResendVerificationAPIView(APIView):
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+
+class LoginAPIView(APIView):
+    """
+    API endpoint for user login.
+
+    Authenticates user with email and password, returns JWT tokens.
+    """
+
+    permission_classes = [AllowAny]
+    throttle_classes = [LoginThrottle]
+
+    @extend_schema(
+        request=LoginSerializer,
+        responses={
+            200: OpenApiResponse(
+                response=LoginResponseSerializer,
+                description="Login successful. JWT tokens returned.",
+                examples=[
+                    OpenApiExample(
+                        "Success",
+                        value={
+                            "access_token": "eyJ0eXAiOiJKV1QiLCJhbGc...",
+                            "refresh_token": "eyJ0eXAiOiJKV1QiLCJhbGc...",
+                            "user": {
+                                "id": "550e8400-e29b-41d4-a716-446655440000",
+                                "email": "user@example.com",
+                                "first_name": "Max",
+                                "last_name": "Mueller",
+                                "profile_completed": False,
+                                "language": "en"
+                            }
+                        }
+                    )
+                ]
+            ),
+            400: OpenApiResponse(description="Validation error (missing fields)"),
+            401: OpenApiResponse(
+                description="Invalid credentials",
+                examples=[
+                    OpenApiExample(
+                        "Invalid credentials",
+                        value={"detail": "Invalid credentials"}
+                    )
+                ]
+            ),
+            403: OpenApiResponse(
+                description="Email not verified",
+                examples=[
+                    OpenApiExample(
+                        "Email not verified",
+                        value={
+                            "detail": "Please verify your email",
+                            "code": "email_not_verified"
+                        }
+                    )
+                ]
+            ),
+            429: OpenApiResponse(description="Rate limit exceeded"),
+        },
+        summary="User login",
+        description="Authenticate user and return JWT tokens.",
+        tags=["Authentication"],
+    )
+    def post(self, request):
+        serializer = LoginSerializer(data=request.data)
+
+        if not serializer.is_valid():
+            # Check if it's an invalid credentials error
+            errors = serializer.errors
+            non_field_errors = errors.get('non_field_errors', [])
+
+            if non_field_errors and 'Invalid credentials' in non_field_errors:
+                return Response(
+                    {'detail': 'Invalid credentials'},
+                    status=status.HTTP_401_UNAUTHORIZED
+                )
+
+            # Other validation errors (missing fields, etc.)
+            return Response(
+                {
+                    'error': True,
+                    'message': 'Validation failed',
+                    'details': errors,
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Check for email not verified error
+        auth_error = serializer.validated_data.get('auth_error')
+        if auth_error and auth_error.get('code') == AuthErrorCode.EMAIL_NOT_VERIFIED:
+            return Response(
+                {
+                    'detail': auth_error['message'],
+                    'code': auth_error['code'].value,
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # Generate JWT tokens
+        user = serializer.validated_data['user']
+        refresh = RefreshToken.for_user(user)
+
+        return Response(
+            {
+                'access_token': str(refresh.access_token),
+                'refresh_token': str(refresh),
+                'user': LoginUserSerializer(user).data,
+            },
+            status=status.HTTP_200_OK
+        )

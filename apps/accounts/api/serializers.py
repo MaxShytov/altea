@@ -130,3 +130,95 @@ class ResendVerificationSerializer(serializers.Serializer):
     def validate_email(self, value):
         """Normalize email to lowercase."""
         return value.lower()
+
+
+class LoginUserSerializer(serializers.ModelSerializer):
+    """
+    Serializer for user data in login response.
+    Includes profile fields (stubbed until FR-1.3 Onboarding).
+    """
+
+    profile_completed = serializers.SerializerMethodField()
+    language = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'first_name', 'last_name', 'profile_completed', 'language']
+        read_only_fields = fields
+
+    def get_profile_completed(self, obj) -> bool:
+        """
+        Returns onboarding completion status.
+        TODO: Update after FR-1.3 Onboarding to read from UserProfile.
+        """
+        # Stub: Will be replaced with obj.profile.onboarding_completed after FR-1.3
+        return False
+
+    def get_language(self, obj) -> str:
+        """
+        Returns user's preferred language.
+        TODO: Update after FR-1.3 Onboarding to read from UserProfile.
+        """
+        # Stub: Will be replaced with obj.profile.language after FR-1.3
+        return 'en'
+
+
+class LoginSerializer(serializers.Serializer):
+    """
+    Serializer for user login.
+    Validates credentials and returns JWT tokens.
+    """
+
+    email = serializers.EmailField(
+        required=True,
+        help_text="User's email address"
+    )
+    password = serializers.CharField(
+        required=True,
+        write_only=True,
+        style={'input_type': 'password'},
+        help_text="User's password"
+    )
+
+    def validate_email(self, value):
+        """Normalize email to lowercase and strip whitespace."""
+        return value.lower().strip()
+
+    def validate(self, attrs):
+        """
+        Validate credentials using AuthenticationService.
+        """
+        from apps.accounts.services import AuthenticationService, AuthErrorCode
+
+        email = attrs.get('email')
+        password = attrs.get('password')
+
+        result = AuthenticationService.authenticate_user(email, password)
+
+        if not result.success:
+            if result.error_code == AuthErrorCode.EMAIL_NOT_VERIFIED:
+                # Store for view to return 403
+                attrs['auth_error'] = {
+                    'code': result.error_code,
+                    'message': result.error_message,
+                }
+                attrs['user'] = result.user
+                return attrs
+
+            # Invalid credentials -> raise validation error
+            raise serializers.ValidationError({
+                'non_field_errors': [result.error_message]
+            })
+
+        attrs['user'] = result.user
+        return attrs
+
+
+class LoginResponseSerializer(serializers.Serializer):
+    """
+    Response serializer for login endpoint (OpenAPI documentation).
+    """
+
+    access_token = serializers.CharField(help_text="JWT access token")
+    refresh_token = serializers.CharField(help_text="JWT refresh token")
+    user = LoginUserSerializer(help_text="Authenticated user data")

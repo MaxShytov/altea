@@ -55,6 +55,12 @@ dependencies:
   # URL launcher for legal documents (opens in browser)
   url_launcher: ^6.3.1
 
+  # Secure storage for tokens
+  flutter_secure_storage: ^9.2.2
+
+  # Deep linking support
+  app_links: ^6.3.3
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

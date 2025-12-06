@@ -3,9 +3,12 @@ Business logic services for accounts app.
 """
 
 import logging
+from dataclasses import dataclass
+from enum import Enum
 from typing import Optional
 
 from django.conf import settings
+from django.contrib.auth import authenticate
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -14,6 +17,80 @@ from django.utils.html import strip_tags
 from .models import User, EmailVerificationToken
 
 logger = logging.getLogger(__name__)
+
+
+class AuthErrorCode(str, Enum):
+    """Error codes for authentication failures."""
+    INVALID_CREDENTIALS = 'invalid_credentials'
+    EMAIL_NOT_VERIFIED = 'email_not_verified'
+
+
+@dataclass
+class AuthResult:
+    """Result of authentication attempt."""
+    success: bool
+    user: Optional[User] = None
+    error_message: Optional[str] = None
+    error_code: Optional[AuthErrorCode] = None
+
+
+class AuthenticationService:
+    """
+    Service for handling user authentication business logic.
+    """
+
+    @staticmethod
+    def authenticate_user(email: str, password: str) -> AuthResult:
+        """
+        Authenticate user with email and password.
+
+        Args:
+            email: User's email address
+            password: User's password
+
+        Returns:
+            AuthResult with success status, user, or error details
+        """
+        # Normalize email to lowercase
+        email = email.lower().strip()
+
+        # Log authentication attempt (without password)
+        logger.info(f"Login attempt: email={email}")
+
+        # Try to find user
+        try:
+            user = User.objects.get(email__iexact=email)
+        except User.DoesNotExist:
+            logger.warning(f"Login failed: user not found, email={email}")
+            return AuthResult(
+                success=False,
+                error_message="Invalid credentials",
+                error_code=AuthErrorCode.INVALID_CREDENTIALS,
+            )
+
+        # Check password using Django's authenticate
+        authenticated_user = authenticate(username=email, password=password)
+
+        if authenticated_user is None:
+            logger.warning(f"Login failed: invalid password, user_id={user.id}")
+            return AuthResult(
+                success=False,
+                error_message="Invalid credentials",
+                error_code=AuthErrorCode.INVALID_CREDENTIALS,
+            )
+
+        # Check if email is verified
+        if not user.is_verified:
+            logger.warning(f"Login failed: email not verified, user_id={user.id}")
+            return AuthResult(
+                success=False,
+                user=user,
+                error_message="Please verify your email",
+                error_code=AuthErrorCode.EMAIL_NOT_VERIFIED,
+            )
+
+        logger.info(f"Login successful: user_id={user.id}")
+        return AuthResult(success=True, user=user)
 
 
 class RegistrationService:

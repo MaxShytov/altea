@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:altea_mobile/data/models/auth_response.dart';
 import 'package:altea_mobile/data/models/user_model.dart';
 import 'package:altea_mobile/data/repositories/auth_repository.dart';
 import 'package:altea_mobile/presentation/providers/registration_state.dart';
@@ -11,12 +12,59 @@ class MockAuthRepository implements AuthRepository {
   Map<String, List<String>>? fieldErrors;
   int registerCallCount = 0;
   int resendVerificationCallCount = 0;
+  int loginCallCount = 0;
+  bool _isLoggedIn = false;
 
   MockAuthRepository({
     this.shouldSucceed = true,
     this.errorMessage,
     this.fieldErrors,
   });
+
+  @override
+  Future<AuthResponse> login({
+    required String email,
+    required String password,
+  }) async {
+    loginCallCount++;
+    await Future.delayed(const Duration(milliseconds: 100));
+
+    if (!shouldSucceed) {
+      throw MockApiException(
+        message: errorMessage ?? 'Login failed',
+        fieldErrors: fieldErrors ?? {},
+      );
+    }
+
+    _isLoggedIn = true;
+    return AuthResponse(
+      accessToken: 'mock_access_token',
+      refreshToken: 'mock_refresh_token',
+      user: UserModel(
+        id: 'test-uuid',
+        email: email,
+        firstName: 'Test',
+        lastName: 'User',
+        profileCompleted: false,
+        language: 'en',
+      ),
+    );
+  }
+
+  @override
+  Future<void> logout() async {
+    _isLoggedIn = false;
+  }
+
+  @override
+  Future<bool> isLoggedIn() async {
+    return _isLoggedIn;
+  }
+
+  @override
+  Future<String?> getAccessToken() async {
+    return _isLoggedIn ? 'mock_access_token' : null;
+  }
 
   @override
   Future<UserModel> register({
@@ -38,7 +86,7 @@ class MockAuthRepository implements AuthRepository {
     }
 
     return UserModel(
-      id: 1,
+      id: 'test-uuid',
       email: email,
       firstName: firstName,
       lastName: lastName,

@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:altea_mobile/main.dart';
 
 void main() {
-  testWidgets('App renders registration screen', (WidgetTester tester) async {
+  testWidgets('App renders login screen', (WidgetTester tester) async {
     await tester.pumpWidget(
       const ProviderScope(
         child: AlteaApp(),
@@ -12,8 +12,8 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    // Verify that the registration screen is displayed
-    expect(find.text('Join Altea'), findsOneWidget);
-    expect(find.text('Create your account to get started'), findsOneWidget);
+    // Verify that the login screen is displayed (now the initial screen)
+    expect(find.text('Welcome Back'), findsOneWidget);
+    expect(find.text('Sign in to continue your journey'), findsOneWidget);
   });
 }
