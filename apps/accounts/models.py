@@ -116,7 +116,7 @@ class User(AbstractUser):
 class PasswordResetToken(TimeStampedModel):
     """
     Model to store password reset tokens.
-    Tokens expire after 24 hours.
+    Tokens expire after 1 hour (configurable via settings).
     """
     user = models.ForeignKey(
         User,
@@ -127,17 +127,20 @@ class PasswordResetToken(TimeStampedModel):
 
     token = models.CharField(
         _('token'),
-        max_length=100,
-        unique=True
-    )
-
-    is_used = models.BooleanField(
-        _('is used'),
-        default=False
+        max_length=64,
+        unique=True,
+        db_index=True
     )
 
     expires_at = models.DateTimeField(
         _('expires at')
+    )
+
+    used_at = models.DateTimeField(
+        _('used at'),
+        null=True,
+        blank=True,
+        help_text=_('Date and time when token was used for password reset')
     )
 
     class Meta:
@@ -149,9 +152,41 @@ class PasswordResetToken(TimeStampedModel):
         return f"Reset token for {self.user.email}"
 
     def is_valid(self):
-        """Check if token is still valid."""
+        """Check if token is still valid (not used and not expired)."""
         from django.utils import timezone
-        return not self.is_used and timezone.now() < self.expires_at
+        return self.used_at is None and timezone.now() < self.expires_at
+
+    def mark_used(self):
+        """Mark token as used and save."""
+        from django.utils import timezone
+        self.used_at = timezone.now()
+        self.save(update_fields=['used_at', 'updated_at'])
+
+    @classmethod
+    def create_for_user(cls, user):
+        """
+        Create a new password reset token for the given user.
+        Invalidates any existing unused tokens for this user.
+        """
+        import secrets
+        from django.utils import timezone
+        from django.conf import settings
+
+        # Invalidate existing unused tokens
+        cls.objects.filter(user=user, used_at__isnull=True).update(
+            used_at=timezone.now()
+        )
+
+        # Get expiry hours from settings (default 1 hour for password reset)
+        expiry_hours = getattr(settings, 'PASSWORD_RESET_TOKEN_EXPIRY_HOURS', 1)
+
+        # Create new token
+        token = cls.objects.create(
+            user=user,
+            token=secrets.token_urlsafe(32),
+            expires_at=timezone.now() + timezone.timedelta(hours=expiry_hours)
+        )
+        return token
 
 
 class EmailVerificationToken(TimeStampedModel):

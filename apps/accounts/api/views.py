@@ -5,13 +5,14 @@ API Views for authentication.
 from django.shortcuts import render
 from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiExample
 from rest_framework import status
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from apps.accounts.services import AuthErrorCode, EmailVerificationService
+from apps.accounts.services import AuthErrorCode, EmailVerificationService, PasswordResetService
 from .serializers import (
+    ForgotPasswordSerializer,
     LoginSerializer,
     LoginResponseSerializer,
     LoginUserSerializer,
@@ -19,7 +20,7 @@ from .serializers import (
     ResendVerificationSerializer,
     UserSerializer,
 )
-from .throttling import LoginThrottle, RegistrationThrottle, ResendVerificationThrottle
+from .throttling import ForgotPasswordThrottle, LoginThrottle, RegistrationThrottle, ResendVerificationThrottle
 
 
 class RegisterAPIView(APIView):
@@ -262,6 +263,93 @@ class LoginAPIView(APIView):
                 'access_token': str(refresh.access_token),
                 'refresh_token': str(refresh),
                 'user': LoginUserSerializer(user).data,
+            },
+            status=status.HTTP_200_OK
+        )
+
+
+class MeAPIView(APIView):
+    """
+    API endpoint to get current authenticated user.
+
+    Returns the authenticated user's data based on the JWT token.
+    Used for session restoration on app startup.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        responses={
+            200: OpenApiResponse(
+                response=LoginUserSerializer,
+                description="Current user data",
+            ),
+            401: OpenApiResponse(description="Not authenticated"),
+        },
+        summary="Get current user",
+        description="Returns the currently authenticated user's data.",
+        tags=["Authentication"],
+    )
+    def get(self, request):
+        """Return current authenticated user data."""
+        return Response(
+            LoginUserSerializer(request.user).data,
+            status=status.HTTP_200_OK
+        )
+
+
+class ForgotPasswordAPIView(APIView):
+    """
+    API endpoint for requesting password reset.
+
+    Sends a password reset email to the specified address if the account exists.
+    Always returns success to prevent email enumeration attacks.
+    """
+
+    permission_classes = [AllowAny]
+    throttle_classes = [ForgotPasswordThrottle]
+
+    @extend_schema(
+        request=ForgotPasswordSerializer,
+        responses={
+            200: OpenApiResponse(
+                description="Password reset email sent (if account exists)",
+                examples=[
+                    OpenApiExample(
+                        "Success",
+                        value={
+                            "message": "If an account exists with this email, you will receive password reset instructions."
+                        }
+                    )
+                ]
+            ),
+            400: OpenApiResponse(description="Validation error"),
+            429: OpenApiResponse(description="Rate limit exceeded"),
+        },
+        summary="Request password reset",
+        description="Request a password reset link to be sent to the specified email address.",
+        tags=["Authentication"],
+    )
+    def post(self, request):
+        serializer = ForgotPasswordSerializer(data=request.data)
+
+        if not serializer.is_valid():
+            return Response(
+                {
+                    'error': True,
+                    'message': 'Validation failed',
+                    'details': serializer.errors,
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        email = serializer.validated_data['email']
+        success, message = PasswordResetService.request_reset(email)
+
+        return Response(
+            {
+                'error': False,
+                'message': message,
             },
             status=status.HTTP_200_OK
         )

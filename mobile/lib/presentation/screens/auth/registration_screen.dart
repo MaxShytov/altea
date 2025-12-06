@@ -9,6 +9,7 @@ import '../../providers/registration_state.dart';
 import '../../widgets/atoms/app_button.dart';
 import '../../widgets/atoms/app_text_field.dart';
 import '../../widgets/molecules/password_field.dart';
+import '../../widgets/organisms/app_drawer.dart';
 
 /// Registration screen for new users.
 class RegistrationScreen extends ConsumerStatefulWidget {
@@ -164,6 +165,7 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
         title: Text(l10n.createAccount),
         centerTitle: true,
       ),
+      drawer: const AppDrawer(),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),

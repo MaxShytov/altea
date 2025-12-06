@@ -3,11 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/extensions/build_context_extensions.dart';
+import '../../providers/auth_state_provider.dart';
 import '../../providers/login_provider.dart';
 import '../../providers/login_state.dart';
 import '../../widgets/atoms/app_button.dart';
 import '../../widgets/atoms/app_text_field.dart';
 import '../../widgets/molecules/password_field.dart';
+import '../../widgets/organisms/app_drawer.dart';
 
 /// Login screen for existing users.
 class LoginScreen extends ConsumerStatefulWidget {
@@ -79,8 +81,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     ref.listen<LoginState>(loginProvider, (previous, next) {
       next.whenOrNull(
         success: (user) {
-          // Update current user provider
-          ref.read(currentUserProvider.notifier).state = user;
+          // Update auth state provider
+          ref.read(authStateProvider.notifier).setAuthenticated(user);
           // Navigate to dashboard
           context.go('/dashboard');
         },
@@ -110,6 +112,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         title: Text(l10n.signIn),
         centerTitle: true,
       ),
+      drawer: const AppDrawer(),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -163,12 +166,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: isLoading ? null : () {
-                      // TODO: Navigate to forgot password screen
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(l10n.forgotPasswordComingSoon),
-                        ),
-                      );
+                      context.push('/forgot-password');
                     },
                     child: Text(
                       l10n.forgotPassword,

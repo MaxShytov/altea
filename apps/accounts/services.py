@@ -14,7 +14,7 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.html import strip_tags
 
-from .models import User, EmailVerificationToken
+from .models import User, EmailVerificationToken, PasswordResetToken
 
 logger = logging.getLogger(__name__)
 
@@ -271,3 +271,149 @@ class EmailVerificationService:
             return True, 'Verification email sent. Please check your inbox.'
         else:
             return False, 'Failed to send verification email. Please try again later.'
+
+
+class PasswordResetService:
+    """
+    Service for handling password reset business logic.
+    """
+
+    # Localized email content
+    EMAIL_CONTENT = {
+        'en': {
+            'subject': 'Reset your Altea password',
+            'greeting': 'Hi',
+            'intro': 'We received a request to reset your password for your Altea account.',
+            'instruction': 'Click the button below to reset your password:',
+            'button': 'Reset Password',
+            'expiry': 'This link will expire in {hours} hour(s). If you did not request a password reset, you can safely ignore this email.',
+            'fallback': "If the button doesn't work, copy and paste this link into your browser:",
+        },
+        'de': {
+            'subject': 'Altea Passwort zurücksetzen',
+            'greeting': 'Hallo',
+            'intro': 'Wir haben eine Anfrage erhalten, das Passwort für Ihr Altea-Konto zurückzusetzen.',
+            'instruction': 'Klicken Sie auf die Schaltfläche unten, um Ihr Passwort zurückzusetzen:',
+            'button': 'Passwort zurücksetzen',
+            'expiry': 'Dieser Link läuft in {hours} Stunde(n) ab. Wenn Sie kein Zurücksetzen des Passworts angefordert haben, können Sie diese E-Mail ignorieren.',
+            'fallback': 'Wenn die Schaltfläche nicht funktioniert, kopieren Sie diesen Link und fügen Sie ihn in Ihren Browser ein:',
+        },
+        'fr': {
+            'subject': 'Réinitialisez votre mot de passe Altea',
+            'greeting': 'Bonjour',
+            'intro': 'Nous avons reçu une demande de réinitialisation du mot de passe de votre compte Altea.',
+            'instruction': 'Cliquez sur le bouton ci-dessous pour réinitialiser votre mot de passe:',
+            'button': 'Réinitialiser le mot de passe',
+            'expiry': 'Ce lien expirera dans {hours} heure(s). Si vous n\'avez pas demandé de réinitialisation de mot de passe, vous pouvez ignorer cet e-mail.',
+            'fallback': 'Si le bouton ne fonctionne pas, copiez et collez ce lien dans votre navigateur:',
+        },
+        'it': {
+            'subject': 'Reimposta la tua password Altea',
+            'greeting': 'Ciao',
+            'intro': 'Abbiamo ricevuto una richiesta di reimpostazione della password per il tuo account Altea.',
+            'instruction': 'Clicca sul pulsante qui sotto per reimpostare la tua password:',
+            'button': 'Reimposta password',
+            'expiry': 'Questo link scadrà tra {hours} ora/e. Se non hai richiesto la reimpostazione della password, puoi ignorare questa email.',
+            'fallback': 'Se il pulsante non funziona, copia e incolla questo link nel tuo browser:',
+        },
+    }
+
+    @staticmethod
+    def get_user_language(user: User) -> str:
+        """Get user's preferred language, defaulting to 'en'."""
+        # Try to get language from UserProfile if it exists
+        if hasattr(user, 'profile') and user.profile:
+            return user.profile.language or 'en'
+        return 'en'
+
+    @staticmethod
+    def request_reset(email: str) -> tuple[bool, str]:
+        """
+        Request a password reset for the given email.
+
+        Always returns success to prevent email enumeration.
+
+        Args:
+            email: User's email address
+
+        Returns:
+            Tuple of (success, message)
+        """
+        email = email.lower().strip()
+
+        try:
+            user = User.objects.get(email__iexact=email)
+        except User.DoesNotExist:
+            # Don't reveal if email exists - security best practice
+            logger.info(f"Password reset requested for non-existent email: {email}")
+            return True, 'If an account exists with this email, you will receive password reset instructions.'
+
+        # Send password reset email
+        success = PasswordResetService.send_reset_email(user)
+
+        if success:
+            logger.info(f"Password reset email sent: user_id={user.id}")
+        else:
+            logger.error(f"Failed to send password reset email: user_id={user.id}")
+
+        # Always return success message (security)
+        return True, 'If an account exists with this email, you will receive password reset instructions.'
+
+    @staticmethod
+    def send_reset_email(user: User) -> bool:
+        """
+        Create token and send password reset email.
+
+        Args:
+            user: User instance
+
+        Returns:
+            True if email was sent successfully
+        """
+        token = PasswordResetToken.create_for_user(user)
+
+        # Build reset URL (uses Django's web view)
+        base_url = getattr(settings, 'SITE_URL', 'http://localhost:8000')
+
+        # Use Django's UID-based URL for password reset
+        from django.utils.http import urlsafe_base64_encode
+        from django.utils.encoding import force_bytes
+        from django.contrib.auth.tokens import default_token_generator
+
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        django_token = default_token_generator.make_token(user)
+        reset_url = f"{base_url}/accounts/reset/{uid}/{django_token}/"
+
+        # Get localized content
+        language = PasswordResetService.get_user_language(user)
+        content = PasswordResetService.EMAIL_CONTENT.get(language, PasswordResetService.EMAIL_CONTENT['en'])
+
+        expiry_hours = getattr(settings, 'PASSWORD_RESET_TOKEN_EXPIRY_HOURS', 1)
+
+        # Render email template
+        context = {
+            'user': user,
+            'reset_url': reset_url,
+            'expiry_hours': expiry_hours,
+            'content': content,
+        }
+
+        html_message = render_to_string(
+            'accounts/emails/password_reset_email.html',
+            context
+        )
+        plain_message = strip_tags(html_message)
+
+        try:
+            send_mail(
+                subject=content['subject'],
+                message=plain_message,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[user.email],
+                html_message=html_message,
+                fail_silently=False,
+            )
+            return True
+        except Exception as e:
+            logger.error(f"Failed to send password reset email: user_id={user.id}, error={e}")
+            return False

@@ -42,8 +42,24 @@ class AppLocalizationsFr extends AppLocalizations {
   String get forgotPassword => 'Mot de passe oublié ?';
 
   @override
-  String get forgotPasswordComingSoon =>
-      'Fonctionnalité mot de passe oublié bientôt disponible';
+  String get forgotPasswordTitle => 'Mot de passe oublié';
+
+  @override
+  String get forgotPasswordSubtitle =>
+      'Entrez votre e-mail pour recevoir les instructions';
+
+  @override
+  String get sendResetLink => 'Envoyer le lien';
+
+  @override
+  String get resetLinkSent => 'Lien envoyé !';
+
+  @override
+  String get resetLinkSentMessage =>
+      'Si un compte existe avec cet e-mail, vous recevrez les instructions de réinitialisation.';
+
+  @override
+  String get checkYourEmail => 'Vérifiez votre e-mail';
 
   @override
   String get noAccount => 'Pas encore de compte ?';
@@ -177,4 +193,44 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get retry => 'Réessayer';
+
+  @override
+  String get appName => 'Altea';
+
+  @override
+  String get heroTagline => 'Brisez les mauvaises habitudes';
+
+  @override
+  String get menu => 'Menu';
+
+  @override
+  String get dashboard => 'Tableau de bord';
+
+  @override
+  String get profile => 'Profil';
+
+  @override
+  String get logOut => 'Se déconnecter';
+
+  @override
+  String get logOutConfirmTitle => 'Se déconnecter?';
+
+  @override
+  String get logOutConfirmMessage =>
+      'Êtes-vous sûr de vouloir vous déconnecter?';
+
+  @override
+  String get cancel => 'Annuler';
+
+  @override
+  String get confirm => 'Confirmer';
+
+  @override
+  String get comingSoon => 'Bientôt disponible';
+
+  @override
+  String get home => 'Accueil';
+
+  @override
+  String get getStarted => 'Commencer';
 }

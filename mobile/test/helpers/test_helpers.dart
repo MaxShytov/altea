@@ -103,6 +103,28 @@ class MockAuthRepository implements AuthRepository {
       throw MockApiException(message: errorMessage ?? 'Resend failed');
     }
   }
+
+  @override
+  Future<UserModel?> getCurrentUser() async {
+    if (!_isLoggedIn) return null;
+    return UserModel(
+      id: 'test-uuid',
+      email: 'test@example.com',
+      firstName: 'Test',
+      lastName: 'User',
+      profileCompleted: false,
+      language: 'en',
+    );
+  }
+
+  @override
+  Future<void> forgotPassword(String email) async {
+    await Future.delayed(const Duration(milliseconds: 100));
+
+    if (!shouldSucceed) {
+      throw MockApiException(message: errorMessage ?? 'Failed to send reset email');
+    }
+  }
 }
 
 /// Mock API exception for testing.

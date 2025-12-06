@@ -168,11 +168,41 @@ abstract class AppLocalizations {
   /// **'Forgot password?'**
   String get forgotPassword;
 
-  /// Forgot password coming soon message
+  /// Forgot password screen title
   ///
   /// In en, this message translates to:
-  /// **'Forgot password feature coming soon'**
-  String get forgotPasswordComingSoon;
+  /// **'Forgot Password'**
+  String get forgotPasswordTitle;
+
+  /// Forgot password screen subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email to receive reset instructions'**
+  String get forgotPasswordSubtitle;
+
+  /// Send reset link button
+  ///
+  /// In en, this message translates to:
+  /// **'Send Reset Link'**
+  String get sendResetLink;
+
+  /// Reset link sent success message
+  ///
+  /// In en, this message translates to:
+  /// **'Reset link sent!'**
+  String get resetLinkSent;
+
+  /// Reset link sent detailed message
+  ///
+  /// In en, this message translates to:
+  /// **'If an account exists with this email, you will receive password reset instructions.'**
+  String get resetLinkSentMessage;
+
+  /// Check email header after sending reset link
+  ///
+  /// In en, this message translates to:
+  /// **'Check your email'**
+  String get checkYourEmail;
 
   /// No account text before register link
   ///
@@ -413,6 +443,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Retry'**
   String get retry;
+
+  /// Application name
+  ///
+  /// In en, this message translates to:
+  /// **'Altea'**
+  String get appName;
+
+  /// Home screen hero tagline
+  ///
+  /// In en, this message translates to:
+  /// **'Break the Bad Habits'**
+  String get heroTagline;
+
+  /// Menu title
+  ///
+  /// In en, this message translates to:
+  /// **'Menu'**
+  String get menu;
+
+  /// Dashboard menu item
+  ///
+  /// In en, this message translates to:
+  /// **'Dashboard'**
+  String get dashboard;
+
+  /// Profile menu item
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profile;
+
+  /// Log out menu item
+  ///
+  /// In en, this message translates to:
+  /// **'Log Out'**
+  String get logOut;
+
+  /// Logout confirmation dialog title
+  ///
+  /// In en, this message translates to:
+  /// **'Log Out?'**
+  String get logOutConfirmTitle;
+
+  /// Logout confirmation dialog message
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to log out?'**
+  String get logOutConfirmMessage;
+
+  /// Cancel button
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// Confirm button
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get confirm;
+
+  /// Coming soon label
+  ///
+  /// In en, this message translates to:
+  /// **'Coming Soon'**
+  String get comingSoon;
+
+  /// Home menu item
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get home;
+
+  /// Get started button
+  ///
+  /// In en, this message translates to:
+  /// **'Get Started'**
+  String get getStarted;
 }
 
 class _AppLocalizationsDelegate

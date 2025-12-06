@@ -34,8 +34,23 @@
   "forgotPassword": "Forgot password?",
   "@forgotPassword": {"description": "Forgot password link"},
 
-  "forgotPasswordComingSoon": "Forgot password feature coming soon",
-  "@forgotPasswordComingSoon": {"description": "Forgot password coming soon message"},
+  "forgotPasswordTitle": "Forgot Password",
+  "@forgotPasswordTitle": {"description": "Forgot password screen title"},
+
+  "forgotPasswordSubtitle": "Enter your email to receive reset instructions",
+  "@forgotPasswordSubtitle": {"description": "Forgot password screen subtitle"},
+
+  "sendResetLink": "Send Reset Link",
+  "@sendResetLink": {"description": "Send reset link button"},
+
+  "resetLinkSent": "Reset link sent!",
+  "@resetLinkSent": {"description": "Reset link sent success message"},
+
+  "resetLinkSentMessage": "If an account exists with this email, you will receive password reset instructions.",
+  "@resetLinkSentMessage": {"description": "Reset link sent detailed message"},
+
+  "checkYourEmail": "Check your email",
+  "@checkYourEmail": {"description": "Check email header after sending reset link"},
 
   "noAccount": "Don't have an account?",
   "@noAccount": {"description": "No account text before register link"},
@@ -177,5 +192,44 @@
   "@anErrorOccurred": {"description": "Generic error message"},
 
   "retry": "Retry",
-  "@retry": {"description": "Retry button"}
+  "@retry": {"description": "Retry button"},
+
+  "appName": "Altea",
+  "@appName": {"description": "Application name"},
+
+  "heroTagline": "Break the Bad Habits",
+  "@heroTagline": {"description": "Home screen hero tagline"},
+
+  "menu": "Menu",
+  "@menu": {"description": "Menu title"},
+
+  "dashboard": "Dashboard",
+  "@dashboard": {"description": "Dashboard menu item"},
+
+  "profile": "Profile",
+  "@profile": {"description": "Profile menu item"},
+
+  "logOut": "Log Out",
+  "@logOut": {"description": "Log out menu item"},
+
+  "logOutConfirmTitle": "Log Out?",
+  "@logOutConfirmTitle": {"description": "Logout confirmation dialog title"},
+
+  "logOutConfirmMessage": "Are you sure you want to log out?",
+  "@logOutConfirmMessage": {"description": "Logout confirmation dialog message"},
+
+  "cancel": "Cancel",
+  "@cancel": {"description": "Cancel button"},
+
+  "confirm": "Confirm",
+  "@confirm": {"description": "Confirm button"},
+
+  "comingSoon": "Coming Soon",
+  "@comingSoon": {"description": "Coming soon label"},
+
+  "home": "Home",
+  "@home": {"description": "Home menu item"},
+
+  "getStarted": "Get Started",
+  "@getStarted": {"description": "Get started button"}
 }

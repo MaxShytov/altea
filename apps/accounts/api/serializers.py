@@ -222,3 +222,18 @@ class LoginResponseSerializer(serializers.Serializer):
     access_token = serializers.CharField(help_text="JWT access token")
     refresh_token = serializers.CharField(help_text="JWT refresh token")
     user = LoginUserSerializer(help_text="Authenticated user data")
+
+
+class ForgotPasswordSerializer(serializers.Serializer):
+    """
+    Serializer for forgot password request.
+    """
+
+    email = serializers.EmailField(
+        required=True,
+        help_text="Email address to send password reset link to"
+    )
+
+    def validate_email(self, value):
+        """Normalize email to lowercase."""
+        return value.lower().strip()

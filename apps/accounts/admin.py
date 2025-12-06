@@ -141,10 +141,17 @@ class PasswordResetTokenAdmin(admin.ModelAdmin):
     """
     Admin interface for password reset tokens.
     """
-    list_display = ('user', 'is_used', 'is_valid_status', 'created_at', 'expires_at')
-    list_filter = ('is_used', 'created_at', 'expires_at')
+    list_display = ('user', 'is_used_status', 'is_valid_status', 'created_at', 'expires_at')
+    list_filter = ('created_at', 'expires_at')
     search_fields = ('user__email', 'token')
-    readonly_fields = ('user', 'token', 'created_at', 'updated_at', 'expires_at')
+    readonly_fields = ('user', 'token', 'created_at', 'updated_at', 'expires_at', 'used_at')
+
+    def is_used_status(self, obj):
+        """Display if token has been used."""
+        if obj.used_at is not None:
+            return mark_safe('<span style="color: gray;">Used</span>')
+        return mark_safe('<span style="color: green;">Not used</span>')
+    is_used_status.short_description = _('Used')
 
     def is_valid_status(self, obj):
         """Display if token is valid."""
