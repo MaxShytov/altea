@@ -83,3 +83,25 @@ class ForgotPasswordThrottle(CustomRateThrottle):
     """
     rate = '3/15m'
     scope = 'forgot_password'
+
+
+class OTPRequestThrottle(CustomRateThrottle):
+    """
+    Throttle for OTP request endpoint.
+
+    Limits OTP requests to prevent email spam and brute force attacks.
+    Rate: 1 request per 60 seconds per IP.
+    """
+    rate = '1/60s'
+    scope = 'otp_request'
+
+
+class OTPVerifyThrottle(CustomRateThrottle):
+    """
+    Throttle for OTP verification endpoint.
+
+    Limits verification attempts to prevent brute force attacks.
+    Rate: 5 requests per 15 minutes per IP.
+    """
+    rate = '5/15m'
+    scope = 'otp_verify'

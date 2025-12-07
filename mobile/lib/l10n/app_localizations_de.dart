@@ -231,4 +231,82 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get getStarted => 'Loslegen';
+
+  @override
+  String get onboardingSlide1Title => 'Jede Reise beginnt hier';
+
+  @override
+  String get onboardingSlide1Subtitle =>
+      'Mach den ersten Schritt in die Freiheit. Du bist nicht allein.';
+
+  @override
+  String get onboardingSlide2Title => 'Sehe deinen Fortschritt täglich';
+
+  @override
+  String get onboardingSlide2Subtitle =>
+      'Verfolge jeden Moment der Stärke. Feiere kleine Siege.';
+
+  @override
+  String get onboardingSlide3Title => 'Du bist niemals allein';
+
+  @override
+  String get onboardingSlide3Subtitle =>
+      'Vernetze dich mit anderen auf demselben Weg. Teilen, unterstützen, wachsen.';
+
+  @override
+  String get onboardingSlide4Title => 'Erobere dein Leben zurück';
+
+  @override
+  String get onboardingSlide4Subtitle =>
+      'Jeder Tag ist ein neuer Anfang. Beginne deine Reise heute.';
+
+  @override
+  String get continueWithGoogle => 'Mit Google fortfahren';
+
+  @override
+  String get continueWithApple => 'Mit Apple fortfahren';
+
+  @override
+  String get or => 'oder';
+
+  @override
+  String get signUp => 'Registrieren';
+
+  @override
+  String get loginToAltea => 'Bei Altea anmelden';
+
+  @override
+  String get byContinuing => 'Durch Fortfahren stimmen Sie unseren';
+
+  @override
+  String get otpTitle => 'Wir haben Ihnen einen Code gesendet';
+
+  @override
+  String otpSubtitle(String email) {
+    return 'Bitte geben Sie den 6-stelligen Code ein, den wir an $email gesendet haben';
+  }
+
+  @override
+  String get getNewCode => 'Neuen Code anfordern';
+
+  @override
+  String tryAgainIn(String seconds) {
+    return 'Erneut versuchen in $seconds';
+  }
+
+  @override
+  String get openEmailApp => 'E-Mail-App öffnen';
+
+  @override
+  String invalidCode(int attempts) {
+    return 'Ungültiger Code. $attempts Versuche übrig.';
+  }
+
+  @override
+  String get codeExpired => 'Code abgelaufen. Fordern Sie einen neuen an.';
+
+  @override
+  String tooManyAttempts(int minutes) {
+    return 'Zu viele Versuche. Versuchen Sie es in $minutes Minuten erneut.';
+  }
 }

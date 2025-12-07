@@ -74,5 +74,32 @@
   "confirm": "Bestätigen",
   "comingSoon": "Demnächst",
   "home": "Startseite",
-  "getStarted": "Loslegen"
+  "getStarted": "Loslegen",
+
+  "onboardingSlide1Title": "Jede Reise beginnt hier",
+  "onboardingSlide1Subtitle": "Mach den ersten Schritt in die Freiheit. Du bist nicht allein.",
+
+  "onboardingSlide2Title": "Sehe deinen Fortschritt täglich",
+  "onboardingSlide2Subtitle": "Verfolge jeden Moment der Stärke. Feiere kleine Siege.",
+
+  "onboardingSlide3Title": "Du bist niemals allein",
+  "onboardingSlide3Subtitle": "Vernetze dich mit anderen auf demselben Weg. Teilen, unterstützen, wachsen.",
+
+  "onboardingSlide4Title": "Erobere dein Leben zurück",
+  "onboardingSlide4Subtitle": "Jeder Tag ist ein neuer Anfang. Beginne deine Reise heute.",
+
+  "continueWithGoogle": "Mit Google fortfahren",
+  "continueWithApple": "Mit Apple fortfahren",
+  "or": "oder",
+  "signUp": "Registrieren",
+  "loginToAltea": "Bei Altea anmelden",
+  "byContinuing": "Durch Fortfahren stimmen Sie unseren",
+  "otpTitle": "Wir haben Ihnen einen Code gesendet",
+  "otpSubtitle": "Bitte geben Sie den 6-stelligen Code ein, den wir an {email} gesendet haben",
+  "getNewCode": "Neuen Code anfordern",
+  "tryAgainIn": "Erneut versuchen in {seconds}",
+  "openEmailApp": "E-Mail-App öffnen",
+  "invalidCode": "Ungültiger Code. {attempts} Versuche übrig.",
+  "codeExpired": "Code abgelaufen. Fordern Sie einen neuen an.",
+  "tooManyAttempts": "Zu viele Versuche. Versuchen Sie es in {minutes} Minuten erneut."
 }

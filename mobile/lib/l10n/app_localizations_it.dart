@@ -230,4 +230,82 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get getStarted => 'Inizia';
+
+  @override
+  String get onboardingSlide1Title => 'Ogni viaggio inizia qui';
+
+  @override
+  String get onboardingSlide1Subtitle =>
+      'Fai il primo passo verso la libertà. Non sei solo.';
+
+  @override
+  String get onboardingSlide2Title => 'Vedi i tuoi progressi ogni giorno';
+
+  @override
+  String get onboardingSlide2Subtitle =>
+      'Monitora ogni momento di forza. Celebra le piccole vittorie.';
+
+  @override
+  String get onboardingSlide3Title => 'Non sei mai solo';
+
+  @override
+  String get onboardingSlide3Subtitle =>
+      'Connettiti con altri sullo stesso percorso. Condividi, supporta, cresci.';
+
+  @override
+  String get onboardingSlide4Title => 'Riprendi in mano la tua vita';
+
+  @override
+  String get onboardingSlide4Subtitle =>
+      'Ogni giorno è un nuovo inizio. Inizia il tuo viaggio oggi.';
+
+  @override
+  String get continueWithGoogle => 'Continua con Google';
+
+  @override
+  String get continueWithApple => 'Continua con Apple';
+
+  @override
+  String get or => 'o';
+
+  @override
+  String get signUp => 'Registrati';
+
+  @override
+  String get loginToAltea => 'Accedi a Altea';
+
+  @override
+  String get byContinuing => 'Continuando, accetti i nostri';
+
+  @override
+  String get otpTitle => 'Ti abbiamo inviato un codice';
+
+  @override
+  String otpSubtitle(String email) {
+    return 'Inserisci il codice a 6 cifre inviato a $email';
+  }
+
+  @override
+  String get getNewCode => 'Richiedi un nuovo codice';
+
+  @override
+  String tryAgainIn(String seconds) {
+    return 'Riprova tra $seconds';
+  }
+
+  @override
+  String get openEmailApp => 'Apri l\'app email';
+
+  @override
+  String invalidCode(int attempts) {
+    return 'Codice non valido. $attempts tentativi rimasti.';
+  }
+
+  @override
+  String get codeExpired => 'Codice scaduto. Richiedine uno nuovo.';
+
+  @override
+  String tooManyAttempts(int minutes) {
+    return 'Troppi tentativi. Riprova tra $minutes minuti.';
+  }
 }

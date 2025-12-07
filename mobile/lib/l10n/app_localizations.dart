@@ -521,6 +521,138 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Get Started'**
   String get getStarted;
+
+  /// Onboarding slide 1 title
+  ///
+  /// In en, this message translates to:
+  /// **'Every Journey Starts Here'**
+  String get onboardingSlide1Title;
+
+  /// Onboarding slide 1 subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Take the first step towards freedom. You\'re not alone.'**
+  String get onboardingSlide1Subtitle;
+
+  /// Onboarding slide 2 title
+  ///
+  /// In en, this message translates to:
+  /// **'See Your Progress Daily'**
+  String get onboardingSlide2Title;
+
+  /// Onboarding slide 2 subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Track every moment of strength. Celebrate small wins.'**
+  String get onboardingSlide2Subtitle;
+
+  /// Onboarding slide 3 title
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re Never Alone'**
+  String get onboardingSlide3Title;
+
+  /// Onboarding slide 3 subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Connect with others on the same path. Share, support, grow.'**
+  String get onboardingSlide3Subtitle;
+
+  /// Onboarding slide 4 title
+  ///
+  /// In en, this message translates to:
+  /// **'Reclaim Your Life'**
+  String get onboardingSlide4Title;
+
+  /// Onboarding slide 4 subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Every day is a new beginning. Start your journey today.'**
+  String get onboardingSlide4Subtitle;
+
+  /// Google social login button
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with Google'**
+  String get continueWithGoogle;
+
+  /// Apple social login button
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with Apple'**
+  String get continueWithApple;
+
+  /// Divider text between social and email login
+  ///
+  /// In en, this message translates to:
+  /// **'or'**
+  String get or;
+
+  /// Sign up button
+  ///
+  /// In en, this message translates to:
+  /// **'Sign Up'**
+  String get signUp;
+
+  /// Login screen title
+  ///
+  /// In en, this message translates to:
+  /// **'Log in to Altea'**
+  String get loginToAltea;
+
+  /// Terms agreement prefix for auth screens
+  ///
+  /// In en, this message translates to:
+  /// **'By continuing, you are agreeing to our'**
+  String get byContinuing;
+
+  /// OTP verification screen title
+  ///
+  /// In en, this message translates to:
+  /// **'We sent you a code'**
+  String get otpTitle;
+
+  /// OTP verification screen subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter the 6-digit code we sent to {email}'**
+  String otpSubtitle(String email);
+
+  /// Resend OTP button
+  ///
+  /// In en, this message translates to:
+  /// **'Get a new code'**
+  String get getNewCode;
+
+  /// Cooldown timer text
+  ///
+  /// In en, this message translates to:
+  /// **'Try again in {seconds}'**
+  String tryAgainIn(String seconds);
+
+  /// Open email app link
+  ///
+  /// In en, this message translates to:
+  /// **'Open email app'**
+  String get openEmailApp;
+
+  /// Invalid OTP error message
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid code. {attempts} attempts remaining.'**
+  String invalidCode(int attempts);
+
+  /// Expired OTP error message
+  ///
+  /// In en, this message translates to:
+  /// **'Code expired. Request a new one.'**
+  String get codeExpired;
+
+  /// Max attempts error message
+  ///
+  /// In en, this message translates to:
+  /// **'Too many attempts. Try again in {minutes} minutes.'**
+  String tooManyAttempts(int minutes);
 }
 
 class _AppLocalizationsDelegate

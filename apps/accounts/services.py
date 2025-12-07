@@ -14,7 +14,7 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.html import strip_tags
 
-from .models import User, EmailVerificationToken, PasswordResetToken
+from .models import User, EmailVerificationToken, PasswordResetToken, OTPToken
 
 logger = logging.getLogger(__name__)
 
@@ -417,3 +417,344 @@ class PasswordResetService:
         except Exception as e:
             logger.error(f"Failed to send password reset email: user_id={user.id}, error={e}")
             return False
+
+
+class OTPErrorCode(str, Enum):
+    """Error codes for OTP operations."""
+    NO_OTP_FOUND = 'no_otp_found'
+    OTP_EXPIRED = 'otp_expired'
+    MAX_ATTEMPTS = 'max_attempts'
+    INVALID_CODE = 'invalid_code'
+    RATE_LIMITED = 'rate_limited'
+
+
+@dataclass
+class OTPResult:
+    """Result of OTP verification attempt."""
+    success: bool
+    user: Optional[User] = None
+    is_new_user: bool = False
+    error_message: Optional[str] = None
+    error_code: Optional[OTPErrorCode] = None
+    attempts_remaining: int = 0
+
+
+class OTPService:
+    """
+    Service for handling OTP-based authentication business logic.
+
+    Provides unified login/signup flow using 6-digit OTP codes.
+    """
+
+    # Localized email content for OTP
+    EMAIL_CONTENT = {
+        'en': {
+            'subject': 'Your Altea verification code',
+            'greeting': 'Hi',
+            'intro': 'Use the following code to verify your email address:',
+            'code_instruction': 'Enter this code in the app to continue:',
+            'expiry': 'This code will expire in {minutes} minute(s).',
+            'ignore': 'If you did not request this code, you can safely ignore this email.',
+        },
+        'de': {
+            'subject': 'Ihr Altea Bestätigungscode',
+            'greeting': 'Hallo',
+            'intro': 'Verwenden Sie den folgenden Code, um Ihre E-Mail-Adresse zu bestätigen:',
+            'code_instruction': 'Geben Sie diesen Code in der App ein, um fortzufahren:',
+            'expiry': 'Dieser Code läuft in {minutes} Minute(n) ab.',
+            'ignore': 'Wenn Sie diesen Code nicht angefordert haben, können Sie diese E-Mail ignorieren.',
+        },
+        'fr': {
+            'subject': 'Votre code de vérification Altea',
+            'greeting': 'Bonjour',
+            'intro': 'Utilisez le code suivant pour vérifier votre adresse e-mail:',
+            'code_instruction': 'Entrez ce code dans l\'application pour continuer:',
+            'expiry': 'Ce code expirera dans {minutes} minute(s).',
+            'ignore': 'Si vous n\'avez pas demandé ce code, vous pouvez ignorer cet e-mail.',
+        },
+        'it': {
+            'subject': 'Il tuo codice di verifica Altea',
+            'greeting': 'Ciao',
+            'intro': 'Usa il seguente codice per verificare il tuo indirizzo email:',
+            'code_instruction': 'Inserisci questo codice nell\'app per continuare:',
+            'expiry': 'Questo codice scadrà tra {minutes} minuto/i.',
+            'ignore': 'Se non hai richiesto questo codice, puoi ignorare questa email.',
+        },
+    }
+
+    @staticmethod
+    def mask_email(email: str) -> str:
+        """
+        Mask email address for privacy.
+
+        Args:
+            email: Full email address.
+
+        Returns:
+            Masked email (e.g., 'u***@e***.com').
+        """
+        if not email or '@' not in email:
+            return email
+
+        local, domain = email.split('@')
+        domain_parts = domain.split('.')
+
+        # Mask local part: show first char, hide rest
+        if len(local) > 1:
+            masked_local = local[0] + '***'
+        else:
+            masked_local = '***'
+
+        # Mask domain: show first char of each part
+        if len(domain_parts) >= 2:
+            masked_domain = domain_parts[0][0] + '***.' + domain_parts[-1]
+        else:
+            masked_domain = domain_parts[0][0] + '***'
+
+        return f"{masked_local}@{masked_domain}"
+
+    @staticmethod
+    def get_client_ip(request) -> Optional[str]:
+        """
+        Extract client IP address from request.
+
+        Args:
+            request: Django HTTP request object.
+
+        Returns:
+            Client IP address string or None.
+        """
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0].strip()
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        return ip
+
+    @staticmethod
+    def get_language_for_email(email: str) -> str:
+        """
+        Get preferred language for user's email.
+
+        Args:
+            email: User's email address.
+
+        Returns:
+            Language code ('en', 'de', 'fr', 'it').
+        """
+        try:
+            user = User.objects.get(email__iexact=email)
+            # Try to get language from UserProfile
+            if hasattr(user, 'profile') and user.profile:
+                return user.profile.language or 'en'
+        except User.DoesNotExist:
+            pass
+        return 'en'
+
+    @staticmethod
+    def create_and_send_otp(email: str, ip_address: str = None) -> tuple[bool, str]:
+        """
+        Create OTP token and send email.
+
+        Always returns success to prevent email enumeration.
+
+        Args:
+            email: Email address to send OTP to.
+            ip_address: Client IP address.
+
+        Returns:
+            Tuple of (success, masked_email).
+        """
+        email = email.lower().strip()
+        masked = OTPService.mask_email(email)
+
+        try:
+            # Create OTP token
+            token, code = OTPToken.create_for_email(email, ip_address)
+
+            # Log OTP code in debug mode (controlled by logging config, not DEBUG setting)
+            logger.debug(f"OTP CODE for {email}: {code}")
+
+            # Get language for email
+            language = OTPService.get_language_for_email(email)
+
+            # Send OTP email
+            success = OTPService.send_otp_email(email, code, language)
+
+            if success:
+                logger.info(f"OTP sent: email={masked}, ip={ip_address}")
+            else:
+                logger.error(f"Failed to send OTP: email={masked}")
+
+        except Exception as e:
+            logger.error(f"Error creating OTP: email={masked}, error={e}")
+
+        # Always return success to prevent email enumeration
+        return True, masked
+
+    @staticmethod
+    def send_otp_email(email: str, code: str, language: str = 'en') -> bool:
+        """
+        Send OTP code via email.
+
+        Args:
+            email: Recipient email address.
+            code: The 6-digit OTP code.
+            language: Language code for email content.
+
+        Returns:
+            True if email was sent successfully.
+        """
+        content = OTPService.EMAIL_CONTENT.get(language, OTPService.EMAIL_CONTENT['en'])
+        expiry_minutes = getattr(settings, 'OTP_EXPIRY_MINUTES', 1)
+
+        context = {
+            'code': code,
+            'email': email,
+            'content': content,
+            'expiry_minutes': expiry_minutes,
+        }
+
+        html_message = render_to_string(
+            'accounts/emails/otp_code.html',
+            context
+        )
+        plain_message = strip_tags(html_message)
+
+        try:
+            send_mail(
+                subject=content['subject'],
+                message=plain_message,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[email],
+                html_message=html_message,
+                fail_silently=False,
+            )
+            return True
+        except Exception as e:
+            logger.error(f"Failed to send OTP email: email={email}, error={e}")
+            return False
+
+    @staticmethod
+    def verify_otp(email: str, code: str) -> OTPResult:
+        """
+        Verify OTP code and authenticate/create user.
+
+        This is the unified login/signup flow:
+        - If email exists: login existing user
+        - If email doesn't exist: create new user
+
+        Args:
+            email: Email address.
+            code: 6-digit OTP code.
+
+        Returns:
+            OTPResult with success status, user, and error details.
+        """
+        email = email.lower().strip()
+        masked = OTPService.mask_email(email)
+
+        # Get latest valid token
+        token = OTPToken.get_latest_valid(email)
+
+        if not token:
+            # Check if there's an expired token
+            expired_token = OTPToken.objects.filter(
+                email=email,
+                used=False,
+            ).order_by('-created_at').first()
+
+            if expired_token and expired_token.is_expired:
+                logger.warning(f"OTP verification failed: expired, email={masked}")
+                return OTPResult(
+                    success=False,
+                    error_message='Code expired. Request a new one.',
+                    error_code=OTPErrorCode.OTP_EXPIRED,
+                )
+
+            if expired_token and expired_token.is_max_attempts_reached:
+                logger.warning(f"OTP verification failed: max attempts, email={masked}")
+                return OTPResult(
+                    success=False,
+                    error_message='Too many attempts. Request a new code.',
+                    error_code=OTPErrorCode.MAX_ATTEMPTS,
+                )
+
+            logger.warning(f"OTP verification failed: no valid token, email={masked}")
+            return OTPResult(
+                success=False,
+                error_message='No valid code found. Request a new one.',
+                error_code=OTPErrorCode.NO_OTP_FOUND,
+            )
+
+        # Verify the code
+        if not token.verify_code(code):
+            token.increment_attempts()
+            remaining = token.attempts_remaining
+
+            logger.warning(
+                f"OTP verification failed: invalid code, email={masked}, "
+                f"attempts_remaining={remaining}"
+            )
+
+            if remaining <= 0:
+                return OTPResult(
+                    success=False,
+                    error_message='Too many attempts. Request a new code.',
+                    error_code=OTPErrorCode.MAX_ATTEMPTS,
+                    attempts_remaining=0,
+                )
+
+            return OTPResult(
+                success=False,
+                error_message=f'Invalid code. {remaining} attempt(s) remaining.',
+                error_code=OTPErrorCode.INVALID_CODE,
+                attempts_remaining=remaining,
+            )
+
+        # Code is valid - mark as used
+        token.mark_used()
+
+        # Get or create user (unified flow)
+        user, created = User.objects.get_or_create(
+            email=email,
+            defaults={
+                'username': email,
+                'is_verified': True,  # OTP verification = email verified
+            }
+        )
+
+        # If existing user, ensure they're verified
+        if not created and not user.is_verified:
+            user.is_verified = True
+            user.save(update_fields=['is_verified'])
+
+        if created:
+            logger.info(f"New user created via OTP: user_id={user.id}")
+        else:
+            logger.info(f"Existing user logged in via OTP: user_id={user.id}")
+
+        return OTPResult(
+            success=True,
+            user=user,
+            is_new_user=created,
+        )
+
+    @staticmethod
+    def cleanup_expired_tokens() -> int:
+        """
+        Delete expired OTP tokens.
+
+        Should be called periodically via Celery task.
+
+        Returns:
+            Number of deleted tokens.
+        """
+        deleted_count, _ = OTPToken.objects.filter(
+            expires_at__lt=timezone.now()
+        ).delete()
+
+        if deleted_count > 0:
+            logger.info(f"Cleaned up {deleted_count} expired OTP tokens")
+
+        return deleted_count

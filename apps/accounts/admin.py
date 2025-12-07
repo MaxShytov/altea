@@ -9,7 +9,7 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils import timezone
 
-from .models import User, PasswordResetToken, EmailVerificationToken
+from .models import User, PasswordResetToken, EmailVerificationToken, OTPToken
 
 
 class CountryFilter(admin.SimpleListFilter):
@@ -229,3 +229,105 @@ class EmailVerificationTokenAdmin(admin.ModelAdmin):
         """Mark selected tokens as used (invalidate them)."""
         updated = queryset.filter(used_at__isnull=True).update(used_at=timezone.now())
         self.message_user(request, _('%(count)d token(s) invalidated.') % {'count': updated})
+
+
+@admin.register(OTPToken)
+class OTPTokenAdmin(admin.ModelAdmin):
+    """
+    Admin interface for OTP tokens.
+    """
+    list_display = (
+        'email',
+        'token_status',
+        'attempts_display',
+        'ip_address',
+        'created_at',
+        'expires_at',
+    )
+    list_filter = ('used', 'created_at', 'expires_at')
+    search_fields = ('email', 'ip_address')
+    readonly_fields = (
+        'id',
+        'email',
+        'code_hash',
+        'created_at',
+        'updated_at',
+        'expires_at',
+        'attempts',
+        'used',
+        'ip_address',
+    )
+    ordering = ('-created_at',)
+
+    fieldsets = (
+        (None, {
+            'fields': ('id', 'email', 'ip_address')
+        }),
+        (_('Token Details'), {
+            'fields': ('code_hash', 'expires_at', 'used', 'attempts')
+        }),
+        (_('Timestamps'), {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+
+    def token_status(self, obj):
+        """Display token status with colored badge."""
+        if obj.used:
+            return mark_safe(
+                '<span style="background-color: #6b7280; color: white; padding: 3px 8px; '
+                'border-radius: 12px; font-size: 11px; font-weight: 600;">Used</span>'
+            )
+        elif obj.is_expired:
+            return mark_safe(
+                '<span style="background-color: #ef4444; color: white; padding: 3px 8px; '
+                'border-radius: 12px; font-size: 11px; font-weight: 600;">Expired</span>'
+            )
+        elif obj.is_max_attempts_reached:
+            return mark_safe(
+                '<span style="background-color: #f59e0b; color: white; padding: 3px 8px; '
+                'border-radius: 12px; font-size: 11px; font-weight: 600;">Max Attempts</span>'
+            )
+        else:
+            return mark_safe(
+                '<span style="background-color: #10b981; color: white; padding: 3px 8px; '
+                'border-radius: 12px; font-size: 11px; font-weight: 600;">Valid</span>'
+            )
+    token_status.short_description = _('Status')
+
+    def attempts_display(self, obj):
+        """Display attempts with color coding."""
+        if obj.attempts >= obj.max_attempts:
+            color = '#ef4444'  # red
+        elif obj.attempts > 0:
+            color = '#f59e0b'  # orange
+        else:
+            color = '#10b981'  # green
+        return mark_safe(
+            f'<span style="color: {color}; font-weight: 600;">'
+            f'{obj.attempts}/{obj.max_attempts}</span>'
+        )
+    attempts_display.short_description = _('Attempts')
+
+    def has_add_permission(self, request):
+        """Disable manual creation of OTP tokens."""
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        """OTP tokens should not be editable."""
+        return False
+
+    actions = ['invalidate_tokens', 'cleanup_expired']
+
+    @admin.action(description=_('Invalidate selected OTP tokens'))
+    def invalidate_tokens(self, request, queryset):
+        """Mark selected tokens as used (invalidate them)."""
+        updated = queryset.filter(used=False).update(used=True)
+        self.message_user(request, _('%(count)d OTP token(s) invalidated.') % {'count': updated})
+
+    @admin.action(description=_('Clean up expired tokens'))
+    def cleanup_expired(self, request, queryset):
+        """Delete expired OTP tokens."""
+        deleted, _ = queryset.filter(expires_at__lt=timezone.now()).delete()
+        self.message_user(request, _('%(count)d expired OTP token(s) deleted.') % {'count': deleted})

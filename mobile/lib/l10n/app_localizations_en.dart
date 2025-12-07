@@ -230,4 +230,82 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get getStarted => 'Get Started';
+
+  @override
+  String get onboardingSlide1Title => 'Every Journey Starts Here';
+
+  @override
+  String get onboardingSlide1Subtitle =>
+      'Take the first step towards freedom. You\'re not alone.';
+
+  @override
+  String get onboardingSlide2Title => 'See Your Progress Daily';
+
+  @override
+  String get onboardingSlide2Subtitle =>
+      'Track every moment of strength. Celebrate small wins.';
+
+  @override
+  String get onboardingSlide3Title => 'You\'re Never Alone';
+
+  @override
+  String get onboardingSlide3Subtitle =>
+      'Connect with others on the same path. Share, support, grow.';
+
+  @override
+  String get onboardingSlide4Title => 'Reclaim Your Life';
+
+  @override
+  String get onboardingSlide4Subtitle =>
+      'Every day is a new beginning. Start your journey today.';
+
+  @override
+  String get continueWithGoogle => 'Continue with Google';
+
+  @override
+  String get continueWithApple => 'Continue with Apple';
+
+  @override
+  String get or => 'or';
+
+  @override
+  String get signUp => 'Sign Up';
+
+  @override
+  String get loginToAltea => 'Log in to Altea';
+
+  @override
+  String get byContinuing => 'By continuing, you are agreeing to our';
+
+  @override
+  String get otpTitle => 'We sent you a code';
+
+  @override
+  String otpSubtitle(String email) {
+    return 'Please enter the 6-digit code we sent to $email';
+  }
+
+  @override
+  String get getNewCode => 'Get a new code';
+
+  @override
+  String tryAgainIn(String seconds) {
+    return 'Try again in $seconds';
+  }
+
+  @override
+  String get openEmailApp => 'Open email app';
+
+  @override
+  String invalidCode(int attempts) {
+    return 'Invalid code. $attempts attempts remaining.';
+  }
+
+  @override
+  String get codeExpired => 'Code expired. Request a new one.';
+
+  @override
+  String tooManyAttempts(int minutes) {
+    return 'Too many attempts. Try again in $minutes minutes.';
+  }
 }

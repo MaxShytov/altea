@@ -237,3 +237,67 @@ class ForgotPasswordSerializer(serializers.Serializer):
     def validate_email(self, value):
         """Normalize email to lowercase."""
         return value.lower().strip()
+
+
+class OTPRequestSerializer(serializers.Serializer):
+    """
+    Serializer for OTP request (unified login/signup).
+
+    Only requires email - backend handles whether this is a new or existing user.
+    """
+
+    email = serializers.EmailField(
+        required=True,
+        help_text="Email address to send OTP code to"
+    )
+
+    def validate_email(self, value):
+        """Normalize email to lowercase."""
+        return value.lower().strip()
+
+
+class OTPResponseSerializer(serializers.Serializer):
+    """
+    Response serializer for OTP request endpoint (OpenAPI documentation).
+    """
+
+    message = serializers.CharField(help_text="Success message")
+    email_masked = serializers.CharField(help_text="Masked email address (e.g., u***@e***.com)")
+
+
+class OTPVerifySerializer(serializers.Serializer):
+    """
+    Serializer for OTP verification.
+    """
+
+    email = serializers.EmailField(
+        required=True,
+        help_text="Email address used for OTP request"
+    )
+    code = serializers.CharField(
+        required=True,
+        min_length=6,
+        max_length=6,
+        help_text="6-digit OTP code received via email"
+    )
+
+    def validate_email(self, value):
+        """Normalize email to lowercase."""
+        return value.lower().strip()
+
+    def validate_code(self, value):
+        """Validate that code contains only digits."""
+        if not value.isdigit():
+            raise serializers.ValidationError("Code must contain only digits.")
+        return value
+
+
+class OTPVerifyResponseSerializer(serializers.Serializer):
+    """
+    Response serializer for OTP verification endpoint (OpenAPI documentation).
+    """
+
+    access_token = serializers.CharField(help_text="JWT access token")
+    refresh_token = serializers.CharField(help_text="JWT refresh token")
+    user = LoginUserSerializer(help_text="Authenticated user data")
+    is_new_user = serializers.BooleanField(help_text="True if this is a newly created user")

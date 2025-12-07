@@ -231,5 +231,91 @@
   "@home": {"description": "Home menu item"},
 
   "getStarted": "Get Started",
-  "@getStarted": {"description": "Get started button"}
+  "@getStarted": {"description": "Get started button"},
+
+  "onboardingSlide1Title": "Every Journey Starts Here",
+  "@onboardingSlide1Title": {"description": "Onboarding slide 1 title"},
+
+  "onboardingSlide1Subtitle": "Take the first step towards freedom. You're not alone.",
+  "@onboardingSlide1Subtitle": {"description": "Onboarding slide 1 subtitle"},
+
+  "onboardingSlide2Title": "See Your Progress Daily",
+  "@onboardingSlide2Title": {"description": "Onboarding slide 2 title"},
+
+  "onboardingSlide2Subtitle": "Track every moment of strength. Celebrate small wins.",
+  "@onboardingSlide2Subtitle": {"description": "Onboarding slide 2 subtitle"},
+
+  "onboardingSlide3Title": "You're Never Alone",
+  "@onboardingSlide3Title": {"description": "Onboarding slide 3 title"},
+
+  "onboardingSlide3Subtitle": "Connect with others on the same path. Share, support, grow.",
+  "@onboardingSlide3Subtitle": {"description": "Onboarding slide 3 subtitle"},
+
+  "onboardingSlide4Title": "Reclaim Your Life",
+  "@onboardingSlide4Title": {"description": "Onboarding slide 4 title"},
+
+  "onboardingSlide4Subtitle": "Every day is a new beginning. Start your journey today.",
+  "@onboardingSlide4Subtitle": {"description": "Onboarding slide 4 subtitle"},
+
+  "continueWithGoogle": "Continue with Google",
+  "@continueWithGoogle": {"description": "Google social login button"},
+
+  "continueWithApple": "Continue with Apple",
+  "@continueWithApple": {"description": "Apple social login button"},
+
+  "or": "or",
+  "@or": {"description": "Divider text between social and email login"},
+
+  "signUp": "Sign Up",
+  "@signUp": {"description": "Sign up button"},
+
+  "loginToAltea": "Log in to Altea",
+  "@loginToAltea": {"description": "Login screen title"},
+
+  "byContinuing": "By continuing, you are agreeing to our",
+  "@byContinuing": {"description": "Terms agreement prefix for auth screens"},
+
+  "otpTitle": "We sent you a code",
+  "@otpTitle": {"description": "OTP verification screen title"},
+
+  "otpSubtitle": "Please enter the 6-digit code we sent to {email}",
+  "@otpSubtitle": {
+    "description": "OTP verification screen subtitle",
+    "placeholders": {
+      "email": {"type": "String"}
+    }
+  },
+
+  "getNewCode": "Get a new code",
+  "@getNewCode": {"description": "Resend OTP button"},
+
+  "tryAgainIn": "Try again in {seconds}",
+  "@tryAgainIn": {
+    "description": "Cooldown timer text",
+    "placeholders": {
+      "seconds": {"type": "String"}
+    }
+  },
+
+  "openEmailApp": "Open email app",
+  "@openEmailApp": {"description": "Open email app link"},
+
+  "invalidCode": "Invalid code. {attempts} attempts remaining.",
+  "@invalidCode": {
+    "description": "Invalid OTP error message",
+    "placeholders": {
+      "attempts": {"type": "int"}
+    }
+  },
+
+  "codeExpired": "Code expired. Request a new one.",
+  "@codeExpired": {"description": "Expired OTP error message"},
+
+  "tooManyAttempts": "Too many attempts. Try again in {minutes} minutes.",
+  "@tooManyAttempts": {
+    "description": "Max attempts error message",
+    "placeholders": {
+      "minutes": {"type": "int"}
+    }
+  }
 }

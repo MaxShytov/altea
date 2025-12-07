@@ -10,17 +10,33 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from apps.accounts.services import AuthErrorCode, EmailVerificationService, PasswordResetService
+from apps.accounts.services import (
+    AuthErrorCode,
+    EmailVerificationService,
+    OTPService,
+    PasswordResetService,
+)
 from .serializers import (
     ForgotPasswordSerializer,
     LoginSerializer,
     LoginResponseSerializer,
     LoginUserSerializer,
+    OTPRequestSerializer,
+    OTPResponseSerializer,
+    OTPVerifySerializer,
+    OTPVerifyResponseSerializer,
     RegisterSerializer,
     ResendVerificationSerializer,
     UserSerializer,
 )
-from .throttling import ForgotPasswordThrottle, LoginThrottle, RegistrationThrottle, ResendVerificationThrottle
+from .throttling import (
+    ForgotPasswordThrottle,
+    LoginThrottle,
+    OTPRequestThrottle,
+    OTPVerifyThrottle,
+    RegistrationThrottle,
+    ResendVerificationThrottle,
+)
 
 
 class RegisterAPIView(APIView):
@@ -350,6 +366,200 @@ class ForgotPasswordAPIView(APIView):
             {
                 'error': False,
                 'message': message,
+            },
+            status=status.HTTP_200_OK
+        )
+
+
+class OTPRequestAPIView(APIView):
+    """
+    API endpoint to request an OTP code for login/signup.
+
+    This is the unified authentication flow:
+    - If email exists: sends OTP for login
+    - If email doesn't exist: sends OTP for registration
+
+    Always returns success to prevent email enumeration.
+    """
+
+    permission_classes = [AllowAny]
+    throttle_classes = [OTPRequestThrottle]
+
+    @extend_schema(
+        request=OTPRequestSerializer,
+        responses={
+            200: OpenApiResponse(
+                response=OTPResponseSerializer,
+                description="OTP sent successfully (if email is valid).",
+                examples=[
+                    OpenApiExample(
+                        "Success",
+                        value={
+                            "message": "Verification code sent to your email",
+                            "email_masked": "u***@e***.com"
+                        }
+                    )
+                ]
+            ),
+            400: OpenApiResponse(description="Validation error (invalid email format)"),
+            429: OpenApiResponse(description="Rate limit exceeded (try again in 60s)"),
+        },
+        summary="Request OTP code",
+        description=(
+            "Request a 6-digit OTP code to be sent to the specified email address. "
+            "This endpoint handles both login and registration - the backend will "
+            "automatically create a new user if the email doesn't exist. "
+            "Rate limited to 1 request per 60 seconds."
+        ),
+        tags=["OTP Authentication"],
+    )
+    def post(self, request):
+        serializer = OTPRequestSerializer(data=request.data)
+
+        if not serializer.is_valid():
+            return Response(
+                {
+                    'error': True,
+                    'message': 'Validation failed',
+                    'details': serializer.errors,
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        email = serializer.validated_data['email']
+        ip_address = OTPService.get_client_ip(request)
+
+        # Create and send OTP
+        success, masked_email = OTPService.create_and_send_otp(email, ip_address)
+
+        return Response(
+            {
+                'message': 'Verification code sent to your email',
+                'email_masked': masked_email,
+            },
+            status=status.HTTP_200_OK
+        )
+
+
+class OTPVerifyAPIView(APIView):
+    """
+    API endpoint to verify OTP code and authenticate user.
+
+    On successful verification:
+    - If email exists: logs in existing user
+    - If email doesn't exist: creates new user and logs them in
+
+    Returns JWT tokens for authenticated user.
+    """
+
+    permission_classes = [AllowAny]
+    throttle_classes = [OTPVerifyThrottle]
+
+    @extend_schema(
+        request=OTPVerifySerializer,
+        responses={
+            200: OpenApiResponse(
+                response=OTPVerifyResponseSerializer,
+                description="OTP verified successfully. JWT tokens returned.",
+                examples=[
+                    OpenApiExample(
+                        "Success",
+                        value={
+                            "access_token": "eyJ0eXAiOiJKV1QiLCJhbGc...",
+                            "refresh_token": "eyJ0eXAiOiJKV1QiLCJhbGc...",
+                            "user": {
+                                "id": "550e8400-e29b-41d4-a716-446655440000",
+                                "email": "user@example.com",
+                                "first_name": "",
+                                "last_name": "",
+                                "profile_completed": False,
+                                "language": "en"
+                            },
+                            "is_new_user": True
+                        }
+                    )
+                ]
+            ),
+            400: OpenApiResponse(
+                description="Invalid OTP code or validation error",
+                examples=[
+                    OpenApiExample(
+                        "Invalid code",
+                        value={
+                            "error": True,
+                            "message": "Invalid code. 4 attempt(s) remaining.",
+                            "code": "invalid_code",
+                            "attempts_remaining": 4
+                        }
+                    ),
+                    OpenApiExample(
+                        "Expired code",
+                        value={
+                            "error": True,
+                            "message": "Code expired. Request a new one.",
+                            "code": "otp_expired"
+                        }
+                    ),
+                    OpenApiExample(
+                        "Max attempts",
+                        value={
+                            "error": True,
+                            "message": "Too many attempts. Request a new code.",
+                            "code": "max_attempts"
+                        }
+                    )
+                ]
+            ),
+            429: OpenApiResponse(description="Rate limit exceeded"),
+        },
+        summary="Verify OTP code",
+        description=(
+            "Verify the 6-digit OTP code and authenticate the user. "
+            "On success, returns JWT access and refresh tokens. "
+            "If the email doesn't exist, a new user will be created."
+        ),
+        tags=["OTP Authentication"],
+    )
+    def post(self, request):
+        serializer = OTPVerifySerializer(data=request.data)
+
+        if not serializer.is_valid():
+            return Response(
+                {
+                    'error': True,
+                    'message': 'Validation failed',
+                    'details': serializer.errors,
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        email = serializer.validated_data['email']
+        code = serializer.validated_data['code']
+
+        # Verify OTP
+        result = OTPService.verify_otp(email, code)
+
+        if not result.success:
+            response_data = {
+                'error': True,
+                'message': result.error_message,
+                'code': result.error_code.value if result.error_code else None,
+            }
+            if result.attempts_remaining > 0:
+                response_data['attempts_remaining'] = result.attempts_remaining
+
+            return Response(response_data, status=status.HTTP_400_BAD_REQUEST)
+
+        # Generate JWT tokens
+        user = result.user
+        refresh = RefreshToken.for_user(user)
+
+        return Response(
+            {
+                'access_token': str(refresh.access_token),
+                'refresh_token': str(refresh),
+                'user': LoginUserSerializer(user).data,
+                'is_new_user': result.is_new_user,
             },
             status=status.HTTP_200_OK
         )
